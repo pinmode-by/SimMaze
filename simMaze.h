@@ -33,9 +33,6 @@ namespace sm {
 
 using namespace cv;
 
-const int smW = 960;
-const int smH = 480;
-
 class SimMaze {
 public:
   SimMaze(cv::Size s, int goal);
@@ -43,11 +40,14 @@ public:
   ~SimMaze() {}
 private:
   void updateMazez();
+  void BuildMaze();
   cv::Mat matSim;
   Maze oMaze;
   Maze sMaze;
+  int smW = 960;
+  int smH = 480;
   std::string winSim = "pinMode Simulator Maze "; 
-  cv::Size sizeSim {smW, smH};
+
 };
 
 }

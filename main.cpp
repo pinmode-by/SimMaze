@@ -15,8 +15,8 @@ std::atomic_bool isCmd = false;
 
 int main(int argc, char** argv) {
   std::cout.sync_with_stdio(false);
-  const int wMaze = 5;
-  const int hMase = 5;
+  const int wMaze = 6;
+  const int hMase = 6;
   cv::Size sizeMaze(wMaze, hMase); 
   int gm = GoalDiagonal;
   std::string fileMaze ("simMaze.txt"); 
@@ -25,7 +25,7 @@ int main(int argc, char** argv) {
   
   // check command line and parse
   if (argc > 1) {
-		optCmdLineMaze optMaze;
+    optCmdLineMaze optMaze;
     if (auto isParse = parseCommamdLine(argc, argv, optMaze); isParse ) {
       sizeMaze = optMaze.cmdSize;
       gm = optMaze.goal;

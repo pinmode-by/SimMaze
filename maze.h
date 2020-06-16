@@ -43,12 +43,15 @@ class Maze {
 public:
   Maze() = default;
   Maze(cv::Mat& base, cv::Size s, cv::Point p, int goal = 1);
+  cv::Size getSize() const { return cv::Size(mazeW, mazeH);}
+  void setWall(int row, int col, int wall);
   void update();
   ~Maze() {}
   
 private:
   void onCreate();
-  void drawCell(int x, int y);
+  void drawStandMaze();
+  void drawCell(int row, int col);
   
   std::vector<std::vector<int>> mapMaze;
   int pathWidth = 65;
@@ -62,7 +65,6 @@ private:
   // Algorithm generations mazes variables
   int  nVisitedCells;
   std::stack <cv::Point> stackMaze; 
-
   
 };
 
