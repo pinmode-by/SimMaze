@@ -11,17 +11,18 @@ Maze::Maze (cv::Mat& base, cv::Size s, cv::Point p, int goal) {
                       mazeH * (pathWidth + wallWidth) + wallWidth);
   matMaze =cv::Mat(base(cv::Rect(p, sizeMaze)));
   matMaze = cv::Scalar(50, 50, 50);
-  onCreate();
-
-}
-
-void Maze::onCreate() {
-	// assign matrix mapMaze size: mazeH x mazeW 
+  // assign matrix mapMaze size: mazeH x mazeW 
 	mapMaze.resize(mazeH);
   for (int i = 0; i < mazeH; ++i) {
     mapMaze[i].assign(mazeW, 0);
   }
   
+  onCreate();
+
+}
+
+void Maze::onCreate() {
+	
   // assign outside walls Maze
   for (int i = 0; i < mazeW; ++i) { 
     setWall(0, i, SOUTH);  
@@ -142,6 +143,16 @@ void Maze::update() {
       drawCell(x, y);
     }
   }
+}
+
+void Maze::clean() {
+	for (int i = 0; i < mazeH; ++i) {
+		for (int j = 0; j < mazeW; ++j) {
+			mapMaze[i][j] = 0;
+		}
+  }
+  matMaze = cv::Scalar(50, 50, 50);
+	onCreate();
 }
 
 } // namespace

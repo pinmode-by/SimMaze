@@ -41,6 +41,7 @@ public:
 private:
   void updateMazez();
   void BuildMaze();
+  void newMaze();
   cv::Mat matSim;
   Maze oMaze;
   Maze sMaze;

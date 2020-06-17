@@ -13,12 +13,12 @@ SimMaze::SimMaze (cv::Size sz, int goal) {
   oMaze = Maze(matSim, sz, Point(80 + sz.width * 70 + 80, 50), 1);
   winSim += std::to_string(sz.height) + " x " + std::to_string(sz.width);
   namedWindow(winSim, WINDOW_AUTOSIZE);
-  BuildMaze();
+  //BuildMaze();
 }
 
 void SimMaze::BuildMaze() {
   // for test 
-	oMaze.setWall(0, 3, WEST);
+	
 	oMaze.setWall(1, 3, WEST);
   oMaze.setWall(1, 2, SOUTH);
   oMaze.setWall(2, 3, WEST);
@@ -37,6 +37,11 @@ void SimMaze::BuildMaze() {
   oMaze.setWall(5, 4, SOUTH);
   oMaze.setWall(4, 4, EAST);
   oMaze.setWall(3, 4, EAST);
+  oMaze.setWall(1, 4, EAST);
+  oMaze.setWall(2, 4, EAST);
+  oMaze.setWall(2, 4, NORTH);
+  oMaze.setWall(0, 3, EAST);
+  oMaze.setWall(1, 3, EAST);
 }
 
 void SimMaze::run() {
@@ -59,6 +64,7 @@ void SimMaze::run() {
           break;
         case kbCmdNew:
           std::cout << "New empty Maze for build" << std::endl;
+          newMaze();
           break;
         case kbCmdGen:
           std::cout << "Generation new random Maze" << std::endl;
@@ -69,6 +75,7 @@ void SimMaze::run() {
         case kbCmdTest:
           if (oMaze.getSize() == Size(6, 6)) {
             std::cout << "Load test Maze 6 x 6" << std::endl;
+            BuildMaze();
           }
           break;
       }    
@@ -79,8 +86,13 @@ void SimMaze::run() {
 
 void SimMaze::updateMazez() {
   oMaze.update();
-  //sMaze.update();
+  sMaze.update();
   imshow(winSim, matSim);
+}
+
+void SimMaze::newMaze() {
+	oMaze.clean();
+	sMaze.clean();
 }
 
 }

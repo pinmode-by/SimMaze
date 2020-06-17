@@ -45,6 +45,7 @@ public:
   Maze(cv::Mat& base, cv::Size s, cv::Point p, int goal = 1);
   cv::Size getSize() const { return cv::Size(mazeW, mazeH);}
   void setWall(int row, int col, int wall);
+  void clean();
   void update();
   ~Maze() {}
   
