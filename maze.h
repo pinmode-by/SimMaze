@@ -45,7 +45,11 @@ public:
   Maze(cv::Mat& base, cv::Size s, cv::Point p, int goal = 1);
   cv::Size getSize() const { return cv::Size(mazeW, mazeH);}
   void setWall(int row, int col, int wall);
+  void setColorVisited(cv::Scalar newColor) {
+     colorVISITED = cv::Scalar(newColor); }
   void clean();
+  void edit();
+  void generate();
   void update();
   ~Maze() {}
   
@@ -61,7 +65,8 @@ private:
   int mazeW;
   int mazeH;
   cv::Mat matMaze;
-  cv::Size sizeMaze;
+  cv::Size sizeMatMaze;
+  cv::Scalar colorVISITED {50, 50, 50};
    
   // Algorithm generations mazes variables
   int  nVisitedCells;

@@ -41,14 +41,15 @@ public:
 private:
   void updateMazez();
   void BuildMaze();
+  void editMaze();
   void newMaze();
+  void genMaze();
   cv::Mat matSim;
   Maze oMaze;
   Maze sMaze;
-  int smW = 960;
-  int smH = 480;
+  int smW;
+  int smH;
   std::string winSim = "pinMode Simulator Maze "; 
-
 };
 
 }

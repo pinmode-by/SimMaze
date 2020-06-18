@@ -7,9 +7,9 @@ Maze::Maze (cv::Mat& base, cv::Size s, cv::Point p, int goal) {
   mazeW = s.width;
   mazeH = s.height;
   goalMaze = goal;
-  sizeMaze = cv::Size(mazeW * (pathWidth + wallWidth) + wallWidth,
+  sizeMatMaze = cv::Size(mazeW * (pathWidth + wallWidth) + wallWidth,
                       mazeH * (pathWidth + wallWidth) + wallWidth);
-  matMaze =cv::Mat(base(cv::Rect(p, sizeMaze)));
+  matMaze =cv::Mat(base(cv::Rect(p, sizeMatMaze)));
   matMaze = cv::Scalar(50, 50, 50);
   // assign matrix mapMaze size: mazeH x mazeW 
 	mapMaze.resize(mazeH);
@@ -30,7 +30,7 @@ void Maze::onCreate() {
   }
   for (int i = 0; i < mazeH; ++i) { 
     setWall(i, 0, WEST); 
-    setWall(i, mazeW-1, EAST); 
+    setWall(i, mazeW - 1, EAST); 
   }
   
   // start cell - assign EAST wall
@@ -46,7 +46,6 @@ void Maze::onCreate() {
 }
 
 void Maze::drawStandMaze() {
-  std::cout << "mazeH : " << mazeH << " mazeW : " << mazeW << std::endl;
   static const int cellWidth = pathWidth + wallWidth;
   for (int i = 0; i < mazeH + 1; ++i) {
     for (int j = 0; j < mazeW + 1; ++j) {
@@ -92,10 +91,8 @@ void Maze::setWall(int row, int col, int wall){
 void Maze::drawCell(int row, int col) {
 	static const int cellWidth = pathWidth + wallWidth;
 	static const int H = mazeH * cellWidth + wallWidth; 
-	//static const int W = mazeW * cellWidth + wallWidth;
-	
-	const auto cX = col * cellWidth; 
-	const auto cY = H - row * cellWidth - 1;
+  const auto cX = col * cellWidth; 
+  const auto cY = H - row * cellWidth - 1;
 
   if (mapMaze[row][col] & SOUTH) {
     rectangle(matMaze,
@@ -133,6 +130,14 @@ void Maze::drawCell(int row, int col) {
 			 cv::LINE_8 );
   }
 
+  if (mapMaze[row][col] & VISITED) {
+    rectangle(matMaze,
+        cv::Point(cX + wallWidth, cY - wallWidth),
+        cv::Point(cX + cellWidth - 1, cY - cellWidth + 1),
+        colorVISITED,
+        cv::FILLED,
+        cv::LINE_8 );
+  }
 }
 
 void Maze::update() {
@@ -146,13 +151,26 @@ void Maze::update() {
 }
 
 void Maze::clean() {
-	for (int i = 0; i < mazeH; ++i) {
-		for (int j = 0; j < mazeW; ++j) {
-			mapMaze[i][j] = 0;
-		}
+  for (int i = 0; i < mazeH; ++i) {
+    for (int j = 0; j < mazeW; ++j) {
+      mapMaze[i][j] = 0;
+    }
   }
   matMaze = cv::Scalar(50, 50, 50);
-	onCreate();
+  onCreate();
+}
+
+
+void Maze::generate() {
+  for (int i = 0; i < mazeH; ++i) {
+    for (int j = 0; j < mazeW; ++j) {
+      mapMaze[i][j] = NORTH | EAST | SOUTH | WEST;
+    }
+  }
+  matMaze = cv::Scalar(255, 40, 40);
+  drawStandMaze();
+  mapMaze[0][0] |= VISITED;
+  nVisitedCells = 1;
 }
 
 } // namespace

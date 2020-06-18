@@ -68,6 +68,7 @@ void SimMaze::run() {
           break;
         case kbCmdGen:
           std::cout << "Generation new random Maze" << std::endl;
+          genMaze();
           break;
         case kbCmdSave:
           std::cout << "Save current Maze to output file" << std::endl;
@@ -93,6 +94,15 @@ void SimMaze::updateMazez() {
 void SimMaze::newMaze() {
 	oMaze.clean();
 	sMaze.clean();
+}
+
+void SimMaze::genMaze() {
+	sMaze.clean();
+	oMaze.generate();
+}
+
+void SimMaze::editMaze() {
+
 }
 
 }

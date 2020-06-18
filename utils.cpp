@@ -2,7 +2,7 @@
 #include "utils.h"
 
 bool parseCommamdLine(int argc, char** argv,
-optCmdLineMaze& opt) {
+                      optCmdLineMaze& opt) {
  
   // parse command line 
   // if parse == true -> fill struct <optCmdLineMaze>
