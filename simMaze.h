@@ -42,6 +42,8 @@ private:
   void updateMazez();
   void BuildMaze();
   void editMaze();
+  bool saveMazeToFile();
+  bool loadMazeFromFile();
   void newMaze();
   void genMaze();
   cv::Mat matSim;

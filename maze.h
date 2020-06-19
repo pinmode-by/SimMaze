@@ -36,31 +36,42 @@ enum WALL_CELL {
   EAST    = 0x2,
   SOUTH   = 0x4,
   WEST    = 0x8,
-  VISITED = 0x10 
+  VISITED = 0x10, 
+  CURRENT = 0x20
 };
 
 class Maze {
 public:
   Maze() = default;
-  Maze(cv::Mat& base, cv::Size s, cv::Point p, int goal = 1);
+  Maze(cv::Mat& base, cv::Size s, cv::Point p, int goal,
+       int pW, int wW);
   cv::Size getSize() const { return cv::Size(mazeW, mazeH);}
   void setWall(int row, int col, int wall);
+  void clearWall(int row, int col, int wall);
   void setColorVisited(cv::Scalar newColor) {
      colorVISITED = cv::Scalar(newColor); }
   void clean();
   void edit();
+  bool save();
+  bool load();
   void generate();
   void update();
   ~Maze() {}
   
 private:
+  using pCallback = void(Maze::*)();
+  pCallback onUserUpdate = nullptr;
+
   void onCreate();
   void drawStandMaze();
   void drawCell(int row, int col);
+  void algGeneration();
+  void floodFill();
+  void advFloodFill();
   
   std::vector<std::vector<int>> mapMaze;
-  int pathWidth = 65;
-  int wallWidth = 5;
+  int pathWidth;
+  int wallWidth;
   int goalMaze;
   int mazeW;
   int mazeH;
@@ -70,7 +81,11 @@ private:
    
   // Algorithm generations mazes variables
   int  nVisitedCells;
-  std::stack <cv::Point> stackMaze; 
+  using RowType = int;
+  using ColType = int;
+  using CellType = std::pair<RowType, ColType>;
+  std::stack <CellType> stackMaze; 
+  enum { NORTHN, EASTN, SOUTHN, WESTN };
   
 };
 

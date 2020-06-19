@@ -5,12 +5,16 @@
 namespace sm {
 
 SimMaze::SimMaze (cv::Size sz, int goal) {
-  
-  smW = 80 + sz.width * 70 + 80 + sz.width * 70 + 80;
-  smH = 60 + sz.height * 70 + 60;
+  const int sMax = std::max(sz.width, sz.height);
+  int pWidth = (sMax < 9) ? 55 : ((sMax < 12) ? 45 : 30);
+  int wWidth = 5; 
+  const int cWidth = pWidth + wWidth;
+  smW = 60 + sz.width * cWidth + 60 + sz.width * cWidth + 180;
+  smH = 60 + sz.height * cWidth + 60;
   matSim = Mat(cv::Size(smW, smH), CV_8UC3, cv::Scalar(230, 230, 230));
-  sMaze = Maze(matSim, sz, Point(80, 50), 1);
-  oMaze = Maze(matSim, sz, Point(80 + sz.width * 70 + 80, 50), 1);
+  sMaze = Maze(matSim, sz, Point(60, 50), goal, pWidth, wWidth);
+  oMaze = Maze(matSim, sz, Point(60 + sz.width * cWidth + 60, 50), goal,
+              pWidth, wWidth);
   winSim += std::to_string(sz.height) + " x " + std::to_string(sz.width);
   namedWindow(winSim, WINDOW_AUTOSIZE);
   //BuildMaze();
@@ -49,6 +53,8 @@ void SimMaze::run() {
   const char kbCmdNew = 'n';
   const char kbCmdGen = 'g';
   const char kbCmdSave = 'w';
+  const char kbCmdLoad = 'l';
+  const char kbCmdEdit = 'e';
   const char kbCmdTest = 't';
 
   for (;;) {
@@ -56,7 +62,7 @@ void SimMaze::run() {
     
     char key = (char) waitKey(1);
     if (key > 0 ) {
-      std::cout << std::hex << (int)key << std::endl;
+      //std::cout << std::hex << (int)key << std::endl;
       switch (key) {
         case kbCmdExit:
           std::cout << "Exit simMaze" << std::endl;
@@ -71,7 +77,18 @@ void SimMaze::run() {
           genMaze();
           break;
         case kbCmdSave:
-          std::cout << "Save current Maze to output file" << std::endl;
+          std::cout << "Save current Maze to output file <maze.txt>" <<
+                      std::endl;
+          saveMazeToFile();
+          break;
+        case kbCmdLoad:
+          std::cout << "Load Maze from input file <maze.txt>" <<
+                      std::endl;
+          loadMazeFromFile();
+          break;
+        case kbCmdEdit:
+          std::cout << "Edit current Maze" << std::endl;
+          editMaze();
           break;
         case kbCmdTest:
           if (oMaze.getSize() == Size(6, 6)) {
@@ -83,7 +100,6 @@ void SimMaze::run() {
     }
   }
 }
-
 
 void SimMaze::updateMazez() {
   oMaze.update();
@@ -105,4 +121,12 @@ void SimMaze::editMaze() {
 
 }
 
+bool SimMaze::saveMazeToFile() {
+  return true;
 }
+
+bool SimMaze::loadMazeFromFile() {
+  return true;
+}
+
+} // namespace sm

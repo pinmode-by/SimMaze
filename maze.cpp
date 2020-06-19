@@ -1,18 +1,28 @@
+#include <ctime>
+#include <cstdlib>
+#include <thread>
+#include <chrono>
 #include "maze.h"
+#include "utils.h"
 
+using namespace std::chrono_literals;
+ 
 namespace sm {
   
-Maze::Maze (cv::Mat& base, cv::Size s, cv::Point p, int goal) {
+Maze::Maze (cv::Mat& base, cv::Size s, cv::Point p, int goal,
+            int pW, int wW) {
   
   mazeW = s.width;
   mazeH = s.height;
+  pathWidth = pW;
+  wallWidth = wW;
   goalMaze = goal;
   sizeMatMaze = cv::Size(mazeW * (pathWidth + wallWidth) + wallWidth,
                       mazeH * (pathWidth + wallWidth) + wallWidth);
-  matMaze =cv::Mat(base(cv::Rect(p, sizeMatMaze)));
+  matMaze = cv::Mat(base(cv::Rect(p, sizeMatMaze)));
   matMaze = cv::Scalar(50, 50, 50);
   // assign matrix mapMaze size: mazeH x mazeW 
-	mapMaze.resize(mazeH);
+  mapMaze.resize(mazeH);
   for (int i = 0; i < mazeH; ++i) {
     mapMaze[i].assign(mazeW, 0);
   }
@@ -35,11 +45,20 @@ void Maze::onCreate() {
   
   // start cell - assign EAST wall
   setWall(0, 0, EAST); 
-  // target cell - assign WEST wall
-  if (goalMaze) {
+  if (goalMaze == GoalDiagonal) {
+    // target - diagonal cell: assign WEST wall
     setWall(mazeH - 1, mazeW - 1, WEST);
   } else {
     // target - center of Maze: 4 cells
+    const int ROW = (mazeH - 1) / 2;
+    const int COL = (mazeW - 1) / 2;
+    setWall(ROW, COL, WEST);      // lefr bottom
+    setWall(ROW, COL, SOUTH);     // left bottom
+    setWall(ROW + 1, COL, WEST);  // left up
+    setWall(ROW + 1, COL, NORTH); // left up
+    setWall(ROW + 1, COL + 1, EAST);  // right up
+    setWall(ROW + 1, COL + 1, NORTH); // right up
+    setWall(ROW, COL + 1, EAST);  // right bottom
   }
   
   drawStandMaze();
@@ -88,29 +107,74 @@ void Maze::setWall(int row, int col, int wall){
   }
 }
 
-void Maze::drawCell(int row, int col) {
-	static const int cellWidth = pathWidth + wallWidth;
-	static const int H = mazeH * cellWidth + wallWidth; 
-  const auto cX = col * cellWidth; 
-  const auto cY = H - row * cellWidth - 1;
+void Maze::clearWall(int row, int col, int wall){
+  
+  mapMaze[row][col] &= ~wall;
+  // clear wall at neighbor cells
+  switch (wall) {
+    case NORTH:
+      if (row < mazeH - 1) {
+         mapMaze[row+1][col] &= ~SOUTH;
+      }
+      break;
+    case WEST:
+      if (col > 0 ) {
+         mapMaze[row][col-1] &= ~EAST;
+      }
+      break;
+    case EAST:
+      if (col < mazeW - 1 ) {
+         mapMaze[row][col+1] &= ~WEST;
+      }
+      break;
+    case SOUTH:
+      if (row > 0) {
+         mapMaze[row-1][col] &= ~NORTH;
+      }
+      break;
+    }
+}
 
+
+
+void Maze::drawCell(int row, int col) {
+  static const int cellWidth = pathWidth + wallWidth;
+  
+  const auto cX = col * cellWidth; 
+  const auto cY = sizeMatMaze.height - row * cellWidth - 1;
+  // Draw South wall
   if (mapMaze[row][col] & SOUTH) {
     rectangle(matMaze,
         cv::Point(cX + wallWidth, cY),
         cv::Point(cX + cellWidth - 1, cY - wallWidth + 1),
-        cv::Scalar(0, 0, 255),
+        cv::Scalar(0, 0, 255), // Red color
+        cv::FILLED,
+        cv::LINE_8 );
+  } else {
+    rectangle(matMaze,
+        cv::Point(cX + wallWidth, cY),
+        cv::Point(cX + cellWidth - 1, cY - wallWidth + 1),
+        cv::Scalar(50, 50, 50), // No wall
         cv::FILLED,
         cv::LINE_8 );
   }
-  
+  // Draw West wall
   if (mapMaze[row][col] & WEST) {
     rectangle(matMaze,
         cv::Point(cX, cY - wallWidth),
         cv::Point(cX + wallWidth - 1, cY - cellWidth + 1),
-        cv::Scalar( 0, 0, 255 ),
+        cv::Scalar( 0, 0, 255 ), // Red color
+        cv::FILLED,
+        cv::LINE_8 );
+  } else {
+    rectangle(matMaze,
+        cv::Point(cX, cY - wallWidth),
+        cv::Point(cX + wallWidth - 1, cY - cellWidth + 1),
+        cv::Scalar(50, 50, 50), // No wall
         cv::FILLED,
         cv::LINE_8 );
   }
+  
   // NORTH outside walls
   if (row == mazeH - 1) {
       rectangle(matMaze,
@@ -123,13 +187,13 @@ void Maze::drawCell(int row, int col) {
   // EAST outside walls
   if (col == mazeW - 1) {
       rectangle(matMaze,
-			 cv::Point(H - wallWidth , cY - cellWidth),
-			 cv::Point(H - 1, cY - wallWidth),
-			 cv::Scalar(0, 0, 255),
-			 cv::FILLED,
-			 cv::LINE_8 );
+        cv::Point(sizeMatMaze.width - wallWidth , cY - cellWidth),
+        cv::Point(sizeMatMaze.width - 1, cY - wallWidth),
+        cv::Scalar(0, 0, 255),
+        cv::FILLED,
+        cv::LINE_8 );
   }
-
+  
   if (mapMaze[row][col] & VISITED) {
     rectangle(matMaze,
         cv::Point(cX + wallWidth, cY - wallWidth),
@@ -138,10 +202,27 @@ void Maze::drawCell(int row, int col) {
         cv::FILLED,
         cv::LINE_8 );
   }
+  
+  // if stack is not empty - CURRENT
+  if (!stackMaze.empty()) {
+    auto [rowC, colC] = stackMaze.top();
+    if (row == rowC && col == colC) {
+    rectangle(matMaze,
+        cv::Point(cX + wallWidth, cY - wallWidth),
+        cv::Point(cX + cellWidth - 1, cY - cellWidth + 1),
+        cv::Scalar(0, 255, 255),
+        cv::FILLED,
+        cv::LINE_8 );
+    }
+  }
 }
 
 void Maze::update() {
    
+  if (onUserUpdate != nullptr) {
+    // call background function 
+    (this->*onUserUpdate)();
+  }
   // Draw Maze
   for (int x = 0; x < mazeH; ++x) { 
     for (int y = 0; y < mazeW; ++y) { 
@@ -161,7 +242,82 @@ void Maze::clean() {
 }
 
 
+void Maze::algGeneration() {
+  if (nVisitedCells < mazeH * mazeW) {
+    // Slow down for animation
+    std::this_thread::sleep_for(5ms);
+    
+    // create a set of unvisited neighbors
+    std::vector<int> neighbours;
+    
+    auto [row, col] = stackMaze.top();
+    // if start and finish cells - different way
+    if (row == 0 && col == 0) {
+      // now, only for start cell
+      neighbours.push_back(NORTHN);
+    } else {
+      // North neigbour
+      if (row < mazeH - 1 && (mapMaze[row +1][col] & VISITED) == 0) {
+        neighbours.push_back(NORTHN);
+      }
+      // East neigbour
+      if (col < mazeW - 1 && (mapMaze[row][col + 1] & VISITED) == 0) {
+        neighbours.push_back(EASTN);
+      }
+      // South neigbour
+      if (row > 0 && (mapMaze[row - 1][col] & VISITED) == 0) {
+        neighbours.push_back(SOUTHN);
+      }
+       // West neigbour
+      if (col > 0 && (mapMaze[row][col-1] & VISITED) == 0) {
+        neighbours.push_back(WESTN);
+      }
+    }
+    
+    // Are there any neighbours available?
+    if (!neighbours.empty()) {
+      // get one available neighbour at random
+      int nextDir = neighbours[rand() % neighbours.size()];
+      // Create a path between the neighbour and the current cell
+      switch (nextDir) {
+        case NORTHN: // North
+          mapMaze[row +1][col] |= VISITED;
+          clearWall(row, col, NORTH);
+          stackMaze.push({row +1, col});
+          break;
+        case EASTN:  // East
+          mapMaze[row][col + 1] |= VISITED;
+          clearWall(row, col, EAST);
+          stackMaze.push({row, col + 1});
+          break;
+        case SOUTHN: // South
+          mapMaze[row - 1][col] |= VISITED;
+          clearWall(row, col, SOUTH);
+          stackMaze.push({row - 1, col});
+          break;
+        case WESTN:  // West
+          mapMaze[row][col - 1] |= VISITED;
+          clearWall(row, col, WEST);
+          stackMaze.push({row, col - 1});
+          break;
+      }
+      nVisitedCells++;
+      //setColorVisited(cv::Scalar(0, 255, 5 * nVisitedCells));
+    } else {
+      // No available neighbours so backtrack!
+      stackMaze.pop();
+    }
+    
+  } else {
+    onUserUpdate = nullptr;
+  }
+}
+
 void Maze::generate() {
+  
+  // Seed random number generator
+	srand(clock());
+  
   for (int i = 0; i < mazeH; ++i) {
     for (int j = 0; j < mazeW; ++j) {
       mapMaze[i][j] = NORTH | EAST | SOUTH | WEST;
@@ -170,7 +326,35 @@ void Maze::generate() {
   matMaze = cv::Scalar(255, 40, 40);
   drawStandMaze();
   mapMaze[0][0] |= VISITED;
-  nVisitedCells = 1;
+  // for finish cells
+  mapMaze[mazeH -1][mazeW - 1] |= VISITED;
+  clearWall(mazeH -1, mazeW - 1, SOUTH);
+  
+  nVisitedCells = 2;
+  stackMaze.push({0,0});
+  // pointer to member function
+  onUserUpdate = &Maze::algGeneration;
 }
+
+void Maze::edit() {
+
+}
+
+bool Maze::save() {
+  return true;
+}
+
+bool Maze::load() {
+  return true;
+}
+
+void Maze::floodFill() {
+  onUserUpdate = &Maze::floodFill;
+}
+
+void Maze::advFloodFill() {
+  onUserUpdate = &Maze::advFloodFill;
+}
+
 
 } // namespace
