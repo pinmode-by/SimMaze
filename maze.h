@@ -36,8 +36,9 @@ enum WALL_CELL {
   EAST    = 0x2,
   SOUTH   = 0x4,
   WEST    = 0x8,
-  VISITED = 0x10, 
-  CURRENT = 0x20
+  VISITED = 0x10,
+  ONROUT  = 0x20, 
+  CURRENT = 0x40
 };
 
 class Maze {
@@ -46,10 +47,12 @@ public:
   Maze(cv::Mat& base, cv::Size s, cv::Point p, int goal,
        int pW, int wW);
   cv::Size getSize() const { return cv::Size(mazeW, mazeH);}
+  void setStartGoalCells();
   void setWall(int row, int col, int wall);
   void clearWall(int row, int col, int wall);
   void setColorVisited(cv::Scalar newColor) {
      colorVISITED = cv::Scalar(newColor); }
+  void buildNew();
   void clean();
   void edit();
   bool save();
@@ -81,6 +84,7 @@ private:
    
   // Algorithm generations mazes variables
   int  nVisitedCells;
+  int entryInGoal = 0;
   using RowType = int;
   using ColType = int;
   using CellType = std::pair<RowType, ColType>;

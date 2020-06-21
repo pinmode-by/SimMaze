@@ -58,8 +58,7 @@ void SimMaze::run() {
   const char kbCmdTest = 't';
 
   for (;;) {
-    updateMazez();
-    
+    // event loop
     char key = (char) waitKey(1);
     if (key > 0 ) {
       //std::cout << std::hex << (int)key << std::endl;
@@ -96,8 +95,9 @@ void SimMaze::run() {
             BuildMaze();
           }
           break;
-      }    
+      }   //switch 
     }
+    updateMazez();
   }
 }
 
@@ -108,13 +108,13 @@ void SimMaze::updateMazez() {
 }
 
 void SimMaze::newMaze() {
-	oMaze.clean();
-	sMaze.clean();
+  oMaze.buildNew();
+  sMaze.clean();
 }
 
 void SimMaze::genMaze() {
-	sMaze.clean();
-	oMaze.generate();
+  sMaze.clean();
+  oMaze.generate();
 }
 
 void SimMaze::editMaze() {

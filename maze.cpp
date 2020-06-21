@@ -20,19 +20,19 @@ Maze::Maze (cv::Mat& base, cv::Size s, cv::Point p, int goal,
   sizeMatMaze = cv::Size(mazeW * (pathWidth + wallWidth) + wallWidth,
                       mazeH * (pathWidth + wallWidth) + wallWidth);
   matMaze = cv::Mat(base(cv::Rect(p, sizeMatMaze)));
-  matMaze = cv::Scalar(50, 50, 50);
   // assign matrix mapMaze size: mazeH x mazeW 
   mapMaze.resize(mazeH);
   for (int i = 0; i < mazeH; ++i) {
     mapMaze[i].assign(mazeW, 0);
   }
-  
+  srand(clock());
   onCreate();
 
 }
 
 void Maze::onCreate() {
-	
+  // clear mat
+  matMaze = cv::Scalar(50, 50, 50);
   // assign outside walls Maze
   for (int i = 0; i < mazeW; ++i) { 
     setWall(0, i, SOUTH);  
@@ -42,7 +42,10 @@ void Maze::onCreate() {
     setWall(i, 0, WEST); 
     setWall(i, mazeW - 1, EAST); 
   }
-  
+  drawStandMaze();
+}
+
+void Maze::setStartGoalCells() {
   // start cell - assign EAST wall
   setWall(0, 0, EAST); 
   if (goalMaze == GoalDiagonal) {
@@ -51,18 +54,26 @@ void Maze::onCreate() {
   } else {
     // target - center of Maze: 4 cells
     const int ROW = (mazeH - 1) / 2;
-    const int COL = (mazeW - 1) / 2;
-    setWall(ROW, COL, WEST);      // lefr bottom
-    setWall(ROW, COL, SOUTH);     // left bottom
-    setWall(ROW + 1, COL, WEST);  // left up
-    setWall(ROW + 1, COL, NORTH); // left up
-    setWall(ROW + 1, COL + 1, EAST);  // right up
-    setWall(ROW + 1, COL + 1, NORTH); // right up
-    setWall(ROW, COL + 1, EAST);  // right bottom
+    const int COL = (mazeW - 1) / 2; 
+    std::vector<CellType> goalCells {
+      {ROW, COL}, {ROW, COL + 1},
+      {ROW + 1, COL}, {ROW + 1, COL + 1}
+    };
+    std::vector<int> goalWalls {
+      WEST, SOUTH, SOUTH, EAST, WEST, NORTH, NORTH, EAST 
+    };
+    // random entry to target cells
+    entryInGoal = rand() % goalWalls.size();
+    goalWalls[entryInGoal] = 0;
+    int i = 0;
+    for (const auto& [row, col] : goalCells) {
+      setWall(row, col, goalWalls[i]); 
+      setWall(row, col, goalWalls[i + 1]); 
+      i += 2;
+    }
   }
-  
-  drawStandMaze();
 }
+
 
 void Maze::drawStandMaze() {
   static const int cellWidth = pathWidth + wallWidth;
@@ -134,8 +145,6 @@ void Maze::clearWall(int row, int col, int wall){
       break;
     }
 }
-
-
 
 void Maze::drawCell(int row, int col) {
   static const int cellWidth = pathWidth + wallWidth;
@@ -231,16 +240,19 @@ void Maze::update() {
   }
 }
 
+void Maze::buildNew() {
+  clean();
+  setStartGoalCells();
+}
+
 void Maze::clean() {
   for (int i = 0; i < mazeH; ++i) {
     for (int j = 0; j < mazeW; ++j) {
       mapMaze[i][j] = 0;
     }
   }
-  matMaze = cv::Scalar(50, 50, 50);
   onCreate();
 }
-
 
 void Maze::algGeneration() {
   if (nVisitedCells < mazeH * mazeW) {
@@ -250,7 +262,7 @@ void Maze::algGeneration() {
     // create a set of unvisited neighbors
     std::vector<int> neighbours;
     
-    auto [row, col] = stackMaze.top();
+    const auto [row, col] = stackMaze.top();
     // if start and finish cells - different way
     if (row == 0 && col == 0) {
       // now, only for start cell
@@ -310,13 +322,16 @@ void Maze::algGeneration() {
     
   } else {
     onUserUpdate = nullptr;
+
+    std::cout << "Size of stack : " << stackMaze.size() << std::endl;
+    stackMaze = std::stack<CellType>();
+    //std::cout << "Size of stack : " << stackMaze.size() << std::endl;
   }
 }
 
 void Maze::generate() {
-  
   // Seed random number generator
-	srand(clock());
+  srand(clock());
   
   for (int i = 0; i < mazeH; ++i) {
     for (int j = 0; j < mazeW; ++j) {
@@ -325,12 +340,38 @@ void Maze::generate() {
   }
   matMaze = cv::Scalar(255, 40, 40);
   drawStandMaze();
+  // for start cell
   mapMaze[0][0] |= VISITED;
   // for finish cells
-  mapMaze[mazeH -1][mazeW - 1] |= VISITED;
-  clearWall(mazeH -1, mazeW - 1, SOUTH);
-  
-  nVisitedCells = 2;
+  if (goalMaze == GoalDiagonal) {
+    clearWall(mazeH -1, mazeW - 1, SOUTH);
+    mapMaze[mazeH -1][mazeW - 1] |= VISITED;
+    nVisitedCells = 2;
+  } else {
+  // for target - center of Maze: 4 cells
+    const int ROW = (mazeH - 1) / 2;
+    const int COL = (mazeW - 1) / 2; 
+    clearWall(ROW, COL, EAST);
+    clearWall(ROW, COL, NORTH);
+    clearWall(ROW + 1, COL + 1 , WEST);
+    clearWall(ROW + 1, COL + 1, SOUTH);
+    mapMaze[ROW][COL] |= VISITED;
+    mapMaze[ROW +  1][COL] |= VISITED;  
+    mapMaze[ROW + 1][COL + 1] |= VISITED;  
+    mapMaze[ROW][COL + 1] |= VISITED;  
+    std::vector<CellType> goalCells {
+      {ROW, COL}, {ROW, COL + 1},
+      {ROW + 1, COL}, {ROW + 1, COL + 1}
+    };
+    std::vector<int> goalWalls {
+      WEST, SOUTH, SOUTH, EAST, WEST, NORTH, NORTH, EAST 
+    };
+    // random entry to target cells
+    entryInGoal = rand() % goalWalls.size();
+    const auto [nr, nc ] = goalCells[entryInGoal / 2];
+    clearWall(nr, nc, goalWalls[entryInGoal]);
+    nVisitedCells = 5;
+  }
   stackMaze.push({0,0});
   // pointer to member function
   onUserUpdate = &Maze::algGeneration;

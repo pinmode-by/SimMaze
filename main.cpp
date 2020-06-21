@@ -15,10 +15,10 @@ std::atomic_bool isCmd = false;
 
 int main(int argc, char** argv) {
   std::cout.sync_with_stdio(false);
-  const int wMaze = 16;
-  const int hMase = 16;
+  const int wMaze = 10;
+  const int hMase = 10;
   cv::Size sizeMaze(wMaze, hMase); 
-  int gm = GoalDiagonal; //GoalCenter; //GoalDiagonal; 
+  int gm = GoalCenter; //GoalDiagonal;
   std::string fileMaze ("simMaze.txt"); 
   
   // check to exist fileMaze  
