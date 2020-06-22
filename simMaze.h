@@ -31,12 +31,21 @@
 
 namespace sm {
 
+enum class Status {
+  Idle,
+  Gen,
+  Edit,
+  FloodAlg
+};
+
 using namespace cv;
 
 class SimMaze {
 public:
   SimMaze(cv::Size s, int goal);
   void run();
+  static std::string getNameWinSim() { return winSim; }
+  static Status getStatus() { return status; }
   ~SimMaze() {}
 private:
   void updateMazez();
@@ -51,7 +60,8 @@ private:
   Maze sMaze;
   int smW;
   int smH;
-  std::string winSim = "pinMode Simulator Maze "; 
+  static inline std::string winSim {"pinMode Simulator Maze "}; 
+  static inline Status status = Status::Idle;
 };
 
 }

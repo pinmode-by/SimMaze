@@ -21,7 +21,6 @@
  * 
  */
 
-
 #pragma once
 
 #include <opencv2/highgui.hpp>
@@ -32,13 +31,12 @@
 namespace sm {
   
 enum WALL_CELL {
-  NORTH   = 0x1,
-  EAST    = 0x2,
-  SOUTH   = 0x4,
-  WEST    = 0x8,
+  EAST   = 0x1,
+  SOUTH  = 0x2,
+  WEST   = 0x4,
+  NORTH   = 0x8,
   VISITED = 0x10,
-  ONROUT  = 0x20, 
-  CURRENT = 0x40
+  ONROUTE = 0x20
 };
 
 class Maze {
@@ -49,6 +47,9 @@ public:
   cv::Size getSize() const { return cv::Size(mazeW, mazeH);}
   void setStartGoalCells();
   void setWall(int row, int col, int wall);
+  void setCell(int row, int col, int value) {
+    mapMaze[row][col] = value;
+  };
   void clearWall(int row, int col, int wall);
   void setColorVisited(cv::Scalar newColor) {
      colorVISITED = cv::Scalar(newColor); }
@@ -59,6 +60,8 @@ public:
   bool load();
   void generate();
   void update();
+  bool isWall(cv::Point p);
+  void printMaze();
   ~Maze() {}
   
 private:
@@ -72,6 +75,7 @@ private:
   void floodFill();
   void advFloodFill();
   
+  cv::Point offset; // offset from SimMaze 
   std::vector<std::vector<int>> mapMaze;
   int pathWidth;
   int wallWidth;

@@ -12,6 +12,7 @@ namespace sm {
 Maze::Maze (cv::Mat& base, cv::Size s, cv::Point p, int goal,
             int pW, int wW) {
   
+  offset = p;
   mazeW = s.width;
   mazeH = s.height;
   pathWidth = pW;
@@ -378,7 +379,7 @@ void Maze::generate() {
 }
 
 void Maze::edit() {
-
+    
 }
 
 bool Maze::save() {
@@ -397,5 +398,18 @@ void Maze::advFloodFill() {
   onUserUpdate = &Maze::advFloodFill;
 }
 
+bool Maze::isWall(cv::Point p) {
+  return true ; //matMaze.contains
+}
+
+void Maze::printMaze() {
+ for (int i = 0; i < mazeH; ++i) {
+    for (int j = 0; j < mazeW; ++j) {
+      std::cout << mapMaze[i][j] << ' ';
+    }
+    std::cout << std::endl;
+  }
+  std::cout << "\n\n" << std::endl;
+}
 
 } // namespace

@@ -1,6 +1,25 @@
 #include "simMaze.h"
 #include <iostream>
 #include <string>
+#include <fstream>
+#include <cstring>
+
+static void onMouse(int event, int x, int y, int flags, void* param) {
+  cv::Mat *pm = (cv::Mat*)(param);
+  switch(event) {
+    case cv::EVENT_LBUTTONDOWN: {
+      if (sm::SimMaze::getStatus() == sm::Status::Edit) {
+        std::cout << "Edit :" << "at (" << x << "," << y << ") value is "
+         << (pm->at<cv::Vec3b>(cv::Point(x,y))) << std::endl;
+      } else if (sm::SimMaze::getStatus() == sm::Status::Idle) {
+        std::cout << "Idle :" << "at (" << x << "," << y << ") value is "
+         << (pm->at<cv::Vec3b>(cv::Point(x,y))) << std::endl;       
+      }
+    break;
+    }
+  }
+}
+
 
 namespace sm {
 
@@ -16,14 +35,16 @@ SimMaze::SimMaze (cv::Size sz, int goal) {
   oMaze = Maze(matSim, sz, Point(60 + sz.width * cWidth + 60, 50), goal,
               pWidth, wWidth);
   winSim += std::to_string(sz.height) + " x " + std::to_string(sz.width);
-  namedWindow(winSim, WINDOW_AUTOSIZE);
+  namedWindow(winSim, WINDOW_AUTOSIZE | WINDOW_GUI_EXPANDED);
   //BuildMaze();
+  std::cout << SimMaze::getNameWinSim() << std::endl;
+  cv::setMouseCallback(SimMaze::getNameWinSim(), onMouse, (void*)&matSim);
 }
 
 void SimMaze::BuildMaze() {
   // for test 
-	
-	oMaze.setWall(1, 3, WEST);
+  
+  oMaze.setWall(1, 3, WEST);
   oMaze.setWall(1, 2, SOUTH);
   oMaze.setWall(2, 3, WEST);
   oMaze.setWall(3, 3, WEST);
@@ -49,7 +70,7 @@ void SimMaze::BuildMaze() {
 }
 
 void SimMaze::run() {
-	const char kbCmdExit = 27;
+  const char kbCmdExit = 27;
   const char kbCmdNew = 'n';
   const char kbCmdGen = 'g';
   const char kbCmdSave = 'w';
@@ -113,12 +134,14 @@ void SimMaze::newMaze() {
 }
 
 void SimMaze::genMaze() {
+  status = Status::Gen;
   sMaze.clean();
   oMaze.generate();
 }
 
 void SimMaze::editMaze() {
-
+  status = Status::Edit;
+  oMaze.edit();
 }
 
 bool SimMaze::saveMazeToFile() {
@@ -126,6 +149,35 @@ bool SimMaze::saveMazeToFile() {
 }
 
 bool SimMaze::loadMazeFromFile() {
+  std::string fileMaze ("simMaze.maz"); 
+  std::ifstream ifs(fileMaze, std::ifstream::binary);
+  if (!ifs) {
+    std::cerr << "Error in <" << __PRETTY_FUNCTION__ << "> : " 
+              << std::strerror(errno) << std::endl;
+    return false;
+  }
+  
+  int read_bytes = 0;
+  std::cout << "Reading maze file... <" << fileMaze << "> : " <<  std::endl;
+  while (true) {
+    char ch;
+    ifs.read(&ch, 1);
+    if (ifs.eof()) {
+      break;
+    }
+    oMaze.setCell(read_bytes / 16, read_bytes % 16,
+                  static_cast<int>(ch));
+    ++read_bytes;
+    std::cout << std::hex << static_cast<int>(ch) << ' ' ;
+    if (read_bytes % 16 == 0) {
+      std::cout << std::endl;
+    } 
+    
+  }
+  std::cout << "\n\n" << std::endl;
+  
+  oMaze.printMaze();
+  
   return true;
 }
 
