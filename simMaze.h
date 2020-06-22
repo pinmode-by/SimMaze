@@ -35,6 +35,7 @@ enum class Status {
   Idle,
   Gen,
   Edit,
+  RandSearch,
   FloodAlg
 };
 
@@ -53,6 +54,7 @@ private:
   void editMaze();
   bool saveMazeToFile();
   bool loadMazeFromFile();
+  void randSearchMaze();
   void newMaze();
   void genMaze();
   cv::Mat matSim;

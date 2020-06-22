@@ -18,7 +18,7 @@ int main(int argc, char** argv) {
   const int wMaze = 16;
   const int hMase = 16;
   cv::Size sizeMaze(wMaze, hMase); 
-  int gm = GoalCenter; //GoalDiagonal;
+  int gm = GoalCenter; // GoalCenter; //GoalDiagonal; 
  
   // check to exist fileMaze  
   
@@ -39,3 +39,4 @@ int main(int argc, char** argv) {
   return 0;
 }
 
+//circle(line_bin, cp, 5, Scalar(0, 255, 0), FILLED);

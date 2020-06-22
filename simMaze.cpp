@@ -73,9 +73,13 @@ void SimMaze::run() {
   const char kbCmdExit = 27;
   const char kbCmdNew = 'n';
   const char kbCmdGen = 'g';
-  const char kbCmdSave = 'w';
+  const char kbCmdWrite = 'w';
   const char kbCmdLoad = 'l';
   const char kbCmdEdit = 'e';
+  const char kbCmdSolve = 's';
+  const char kbCmdRand = 'r';
+  const char kbCmdFlood = 'f';
+  const char kbCmdAdvFlood = 'a';
   const char kbCmdTest = 't';
 
   for (;;) {
@@ -96,8 +100,8 @@ void SimMaze::run() {
           std::cout << "Generation new random Maze" << std::endl;
           genMaze();
           break;
-        case kbCmdSave:
-          std::cout << "Save current Maze to output file <maze.txt>" <<
+        case kbCmdWrite:
+          std::cout << "Write current Maze to output file <maze.txt>" <<
                       std::endl;
           saveMazeToFile();
           break;
@@ -110,6 +114,23 @@ void SimMaze::run() {
           std::cout << "Edit current Maze" << std::endl;
           editMaze();
           break;
+        case kbCmdSolve:
+          std::cout << "Solve the current maze by right rule algorithm" <<
+                        std::endl;
+          break;
+        case kbCmdRand:
+          std::cout << "Solve the current maze by random search algorithm" <<
+                        std::endl;
+          randSearchMaze();
+          break;
+        case kbCmdFlood:
+          std::cout << "Solve the current maze by flood fill algorithm" <<
+                        std::endl;
+          break;
+        case kbCmdAdvFlood:
+          std::cout << "Solve the current maze by advanced flood fill algorithm" <<
+                        std::endl;
+          break; 
         case kbCmdTest:
           if (oMaze.getSize() == Size(6, 6)) {
             std::cout << "Load test Maze 6 x 6" << std::endl;
@@ -172,7 +193,6 @@ bool SimMaze::loadMazeFromFile() {
     if (read_bytes % 16 == 0) {
       std::cout << std::endl;
     } 
-    
   }
   std::cout << "\n\n" << std::endl;
   
@@ -180,5 +200,11 @@ bool SimMaze::loadMazeFromFile() {
   
   return true;
 }
+
+void SimMaze::randSearchMaze() {
+  status = Status::RandSearch;
+  sMaze.randSearch();
+}
+
 
 } // namespace sm

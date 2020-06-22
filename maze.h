@@ -57,24 +57,30 @@ public:
   void clean();
   void edit();
   bool save();
-  bool load();
   void generate();
   void update();
   bool isWall(cv::Point p);
+  void randSearch();
   void printMaze();
   ~Maze() {}
   
 private:
   using pCallback = void(Maze::*)();
   pCallback onUserUpdate = nullptr;
-
+  using RowType = int;
+  using ColType = int;
+  using CellType = std::pair<RowType, ColType>;
+  
   void onCreate();
   void drawStandMaze();
   void drawCell(int row, int col);
   void algGeneration();
   void floodFill();
   void advFloodFill();
-  
+  CellType getStartPosition() {return {mazeH - 1, 0}; }
+  CellType getGoalPosition() {
+    return { (mazeH - 1) / 2, (mazeW - 1) / 2 };
+  }
   cv::Point offset; // offset from SimMaze 
   std::vector<std::vector<int>> mapMaze;
   int pathWidth;
@@ -89,9 +95,7 @@ private:
   // Algorithm generations mazes variables
   int  nVisitedCells;
   int entryInGoal = 0;
-  using RowType = int;
-  using ColType = int;
-  using CellType = std::pair<RowType, ColType>;
+  
   std::stack <CellType> stackMaze; 
   enum { NORTHN, EASTN, SOUTHN, WESTN };
   
