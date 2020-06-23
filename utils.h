@@ -27,14 +27,14 @@
 #include <iostream>
 
 enum GoalMaze {
-	GoalCenter,
-	GoalDiagonal
+  GoalCenter,
+  GoalDiagonal
 };
 
 struct optCmdLineMaze {
-	cv::Size cmdSize;
-	int goal = GoalDiagonal; 
-	std::string cmdFileMaze; 
+  cv::Size cmdSize;
+  int goal = GoalDiagonal; 
+  std::string cmdFileMaze; 
 };
  
 bool parseCommamdLine(int argc, char** argv, optCmdLineMaze & opt);

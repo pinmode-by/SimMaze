@@ -84,9 +84,9 @@ private:
      colorCURRENT = cv::Scalar(newColor); }   
   CellType getStartPosition() {return {mazeH - 1, 0}; }
   std::vector<CellType> getGoalPosition() {
-    return goalPositipons;
+    return goalPositions;
   }
-  std::vector<CellType> goalPositipons {};
+  std::vector<CellType> goalPositions {};
   cv::Point offset; // offset from SimMaze 
   std::vector<std::vector<int>> mapMaze;
   Maze *originMaze = nullptr;

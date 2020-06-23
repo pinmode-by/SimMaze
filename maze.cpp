@@ -52,13 +52,13 @@ void Maze::onCreate() {
 }
 
 void Maze::setStartGoalCells() {
-  goalPositipons.clear();
+  goalPositions.clear();
   // start cell - assign EAST wall
   setWall(mazeH - 1, 0, EAST); 
   if (goalMaze == GoalDiagonal) {
     // target - diagonal cell: assign WEST wall
     setWall(0, mazeW - 1, WEST);
-    goalPositipons.push_back({0, mazeW - 1});
+    goalPositions.push_back({0, mazeW - 1});
   } else {
     // target - center of Maze: 4 cells
     const int ROW = (mazeH - 1) / 2;
@@ -79,13 +79,12 @@ void Maze::setStartGoalCells() {
       setWall(row, col, goalWalls[i + 1]); 
       i += 2;
     }
-    goalPositipons.push_back({ROW, COL});
-    goalPositipons.push_back({ROW, COL + 1});
-    goalPositipons.push_back({ROW + 1, COL});
-    goalPositipons.push_back({ROW + 1, COL + 1});
+    goalPositions.push_back({ROW, COL});
+    goalPositions.push_back({ROW, COL + 1});
+    goalPositions.push_back({ROW + 1, COL});
+    goalPositions.push_back({ROW + 1, COL + 1});
   }
 }
-
 
 void Maze::drawStandMaze() {
   static const int cellWidth = pathWidth + wallWidth;
@@ -102,8 +101,7 @@ void Maze::drawStandMaze() {
   }
 }
 
-void Maze::setWall(int row, int col, int wall){
-  
+void Maze::setWall(int row, int col, int wall) {
   mapMaze[row][col] |= wall;
   // set wall at neighbor cells
   switch (wall) {
@@ -397,18 +395,32 @@ void Maze::edit() {
     
 }
 
+bool Maze::isWall(cv::Point p) {
+
+  return true ; //matMaze.contains
+}
+
 bool Maze::save() {
   return true;
 }
 
+// check if cell in goal array positions
+bool Maze::isGoal(CellType cell) {
+  for (const auto [row, col] : goalPositions) {
+    if (row == cell.first && col == cell.second ) {
+      return true;
+    }
+  }  
+  return false;
+}
+
+
 void Maze::algRandSearch() { 
 
-  std::this_thread::sleep_for(200ms);
+  std::this_thread::sleep_for(10ms);
   const auto [row, col] = stackMaze.top();
   
- 
-  if (!isGoal({row, col})) {
-    
+  if (!isGoal({row, col})) {   
     // set walls and neighbours
     int valueCell = originMaze->mapMaze[row][col];
     // create a set of neighbors
@@ -446,18 +458,22 @@ void Maze::algRandSearch() {
       int nextDir = neighbours[rand() % neighbours.size()];
       switch (nextDir) {
         case NORTHN: // North
+          mapMaze[row -1][col] |= VISITED;
           stackMaze.push({row - 1, col});
           prevDir = SOUTHN;
           break;
         case EASTN:  // East
+          mapMaze[row][col + 1] |= VISITED;
           stackMaze.push({row, col + 1});
           prevDir = WESTN;
           break;
         case SOUTHN: // South
+          mapMaze[row + 1][col] |= VISITED;
           stackMaze.push({row + 1, col});
           prevDir = NORTHN;
           break;
         case WESTN:  // West
+          mapMaze[row][col - 1] |= VISITED;
           stackMaze.push({row, col - 1});
           prevDir = EASTN;
           break;
@@ -465,29 +481,31 @@ void Maze::algRandSearch() {
       
     } else {
       // No available neighbours so backtrack!
+      // change oposite prevDir
+      if (prevDir == NORTHN) {
+        prevDir = SOUTHN;
+      } else if (prevDir == SOUTHN) {
+        prevDir = NORTHN;
+      } else if (prevDir == WESTN) {
+        prevDir = EASTN;
+      } else {
+        prevDir = WESTN;
+      }
       stackMaze.pop();
     }
   } else {
     // finish randSearch
     onUserUpdate = nullptr;
-    // clear stack 
-    stackMaze = std::stack<CellType>();
-  }
-}
+    // draw goal cell
 
-bool Maze::isGoal(CellType cell) {
-  for (const auto [row, col] : goalPositipons) {
-    if (row == cell.first && col == cell.second ) {
-      return true;
-    }
-  }  
-  return false;
-  
+    // clear stack 
+    //stackMaze = std::stack<CellType>();
+  }
 }
 
 void Maze::randSearch(Maze *origin) {
   clean();
-  // 
+  // copy pointer to origin Maze
   originMaze = origin;
   // get start position
   auto [startR, startC] = originMaze->getStartPosition();
@@ -495,33 +513,32 @@ void Maze::randSearch(Maze *origin) {
   setWall(startR, startC, EAST);
   stackMaze.push({startR, startC});
   setColorCurrent({0, 255, 0});
-  // set handler - pointer to member function
-  onUserUpdate = &Maze::algRandSearch;
-  goalPositipons = originMaze->getGoalPosition();
+  goalPositions = originMaze->getGoalPosition();
   prevDir = SOUTHN;
+  // set handler - pointer to algRandSearch
+  onUserUpdate = &Maze::algRandSearch;
 }
 
 void Maze::floodFill() {
+  // set handler - pointer to 
   onUserUpdate = &Maze::floodFill;
 }
 
 void Maze::advFloodFill() {
+  // set handler - pointer to 
   onUserUpdate = &Maze::advFloodFill;
 }
 
-bool Maze::isWall(cv::Point p) {
-	
-  return true ; //matMaze.contains
-}
-
+// 
 void Maze::printMaze() {
- for (int i = 0; i < mazeH; ++i) {
+  std::cout << std::hex;
+  for (int i = 0; i < mazeH; ++i) {
     for (int j = 0; j < mazeW; ++j) {
       std::cout << mapMaze[i][j] << ' ';
     }
     std::cout << std::endl;
   }
-  std::cout << "\n\n" << std::endl;
+  std::cout << std::dec << "\n\n";
 }
 
 } // namespace

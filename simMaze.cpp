@@ -101,7 +101,7 @@ void SimMaze::run() {
           genMaze();
           break;
         case kbCmdWrite:
-          std::cout << "Write current Maze to output file <maze.txt>" <<
+          std::cout << "Write current Maze to output file <simMaze.txt>" <<
                       std::endl;
           saveMazeToFile();
           break;
