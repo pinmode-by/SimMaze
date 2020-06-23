@@ -195,7 +195,6 @@ bool SimMaze::loadMazeFromFile() {
     } 
   }
   std::cout << "\n\n" << std::endl;
-  
   oMaze.printMaze();
   
   return true;
@@ -203,7 +202,7 @@ bool SimMaze::loadMazeFromFile() {
 
 void SimMaze::randSearchMaze() {
   status = Status::RandSearch;
-  sMaze.randSearch();
+  sMaze.randSearch(&oMaze);
 }
 
 
