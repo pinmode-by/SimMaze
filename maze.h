@@ -30,14 +30,28 @@
 
 namespace sm {
   
+using uchar = unsigned char;
+
 enum WALL_CELL {
-  EAST   = 0x1,
-  SOUTH  = 0x2,
-  WEST   = 0x4,
-  NORTH   = 0x8,
+  NORTH   = 0x1,
+  EAST    = 0x2,
+  SOUTH   = 0x4,
+  WEST    = 0x8,
   VISITED = 0x10,
   ONROUTE = 0x20
 };
+
+extern bool isMouseEvent;
+
+struct MouseEvent {
+  int typeEvent = 0;
+  int x;
+  int y; 
+};
+
+extern MouseEvent mEvent;
+
+const int MAZE_WIDTH = 16;
 
 class Maze {
 public:
@@ -45,13 +59,21 @@ public:
   Maze(cv::Mat& base, cv::Size s, cv::Point p, int goal,
        int pW, int wW);
   cv::Size getSize() const { return cv::Size(mazeW, mazeH);}
-  void setStartGoalCells();
-  void setWall(int row, int col, int wall);
-  void setCell(int row, int col, int value) {
-    mapMaze[row][col] = value;
-  };
-  void clearWall(int row, int col, int wall);
   
+  int cellN(int x, int y) const {
+    return MAZE_WIDTH * x + y;
+  }
+  void setWall(int col, int row, int wall);
+  void clearWall(int col, int row, int wall);
+  void setCell(int cell, uchar value) {
+    mapMaze[cell] = value;
+  };
+  uchar getCell(int cell) {
+    return mapMaze[cell];
+  };
+  
+  void setStartGoalCells();
+
   void buildNew();
   void clean();
   void edit();
@@ -60,6 +82,7 @@ public:
   void update();
   bool isWall(cv::Point p);
   void randSearch(Maze *origin);
+  void floodFill(Maze *origin);
   void printMaze();
   ~Maze() {}
   
@@ -68,27 +91,31 @@ private:
   pCallback onUserUpdate = nullptr;
   using RowType = int;
   using ColType = int;
-  using CellType = std::pair<RowType, ColType>;
+  using CellType = std::pair<ColType, RowType>;
   
   void onCreate();
+  void onEdit();
   void drawStandMaze();
-  void drawCell(int row, int col);
-  void algRandSearch();
+  void drawCell(int col, int row);
   void algGeneration();
-  void floodFill();
+  void algRandSearch();
+  void algfloodFill();
   void advFloodFill();
   bool isGoal(CellType cell);
   void setColorVisited(cv::Scalar newColor) {
      colorVISITED = cv::Scalar(newColor); }
   void setColorCurrent(cv::Scalar newColor) {
      colorCURRENT = cv::Scalar(newColor); }   
-  CellType getStartPosition() {return {mazeH - 1, 0}; }
+  CellType getStartPosition() {return {0, 0}; }
   std::vector<CellType> getGoalPosition() {
     return goalPositions;
   }
   std::vector<CellType> goalPositions {};
+  void setStandardGoal();
   cv::Point offset; // offset from SimMaze 
-  std::vector<std::vector<int>> mapMaze;
+  
+  std::vector<uchar> mapMaze;
+  
   Maze *originMaze = nullptr;
   int pathWidth;
   int wallWidth;

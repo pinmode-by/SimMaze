@@ -4,13 +4,16 @@
 #include <fstream>
 #include <cstring>
 
+
+
 static void onMouse(int event, int x, int y, int flags, void* param) {
   cv::Mat *pm = (cv::Mat*)(param);
   switch(event) {
     case cv::EVENT_LBUTTONDOWN: {
       if (sm::SimMaze::getStatus() == sm::Status::Edit) {
-        std::cout << "Edit :" << "at (" << x << "," << y << ") value is "
-         << (pm->at<cv::Vec3b>(cv::Point(x,y))) << std::endl;
+        sm::isMouseEvent = true;
+        sm::mEvent.x = x;
+        sm::mEvent.y = y;
       } else if (sm::SimMaze::getStatus() == sm::Status::Idle) {
         std::cout << "Idle :" << "at (" << x << "," << y << ") value is "
          << (pm->at<cv::Vec3b>(cv::Point(x,y))) << std::endl;       
@@ -39,34 +42,6 @@ SimMaze::SimMaze (cv::Size sz, int goal) {
   //BuildMaze();
   std::cout << SimMaze::getNameWinSim() << std::endl;
   cv::setMouseCallback(SimMaze::getNameWinSim(), onMouse, (void*)&matSim);
-}
-
-void SimMaze::BuildMaze() {
-  // for test 
-  
-  oMaze.setWall(1, 3, WEST);
-  oMaze.setWall(1, 2, SOUTH);
-  oMaze.setWall(2, 3, WEST);
-  oMaze.setWall(3, 3, WEST);
-  //oMaze.setWall(4, 3, WEST);
-  oMaze.setWall(2, 0, EAST);
-  oMaze.setWall(3, 0, EAST);
-  oMaze.setWall(4, 0, EAST);
-
-  oMaze.setWall(4, 4, WEST);
-  oMaze.setWall(1, 1, NORTH);
-  oMaze.setWall(5, 1, EAST);
-  oMaze.setWall(4, 1, EAST);
-  oMaze.setWall(3, 1, EAST);
-  oMaze.setWall(5, 2, EAST);
-  oMaze.setWall(5, 4, SOUTH);
-  oMaze.setWall(4, 4, EAST);
-  oMaze.setWall(3, 4, EAST);
-  oMaze.setWall(1, 4, EAST);
-  oMaze.setWall(2, 4, EAST);
-  oMaze.setWall(2, 4, NORTH);
-  oMaze.setWall(0, 3, EAST);
-  oMaze.setWall(1, 3, EAST);
 }
 
 void SimMaze::run() {
@@ -126,16 +101,14 @@ void SimMaze::run() {
         case kbCmdFlood:
           std::cout << "Solve the current maze by flood fill algorithm" <<
                         std::endl;
+          floodMaze();
           break;
         case kbCmdAdvFlood:
           std::cout << "Solve the current maze by advanced flood fill algorithm" <<
                         std::endl;
           break; 
         case kbCmdTest:
-          if (oMaze.getSize() == Size(6, 6)) {
-            std::cout << "Load test Maze 6 x 6" << std::endl;
-            BuildMaze();
-          }
+            std::cout << "Load test Maze " << std::endl;
           break;
       }   //switch 
     }
@@ -162,15 +135,18 @@ void SimMaze::genMaze() {
 
 void SimMaze::editMaze() {
   status = Status::Edit;
+  sMaze.clean();
   oMaze.edit();
 }
 
 bool SimMaze::saveMazeToFile() {
-	
+
   return true;
 }
 
 bool SimMaze::loadMazeFromFile() {
+  oMaze.clean();
+  sMaze.clean();
   std::string fileMaze ("simMaze.maz"); 
   std::ifstream ifs(fileMaze, std::ifstream::binary);
   if (!ifs) {
@@ -187,13 +163,14 @@ bool SimMaze::loadMazeFromFile() {
     if (ifs.eof()) {
       break;
     }
-    oMaze.setCell(read_bytes / 16, read_bytes % 16,
-                  static_cast<int>(ch));
+    oMaze.setCell(read_bytes, static_cast<uchar>(ch));
     ++read_bytes;
+    /*
     std::cout << std::hex << static_cast<int>(ch) << ' ' ;
     if (read_bytes % 16 == 0) {
       std::cout << std::endl;
     } 
+    */
   }
   std::cout << "\n\n" << std::endl;
   oMaze.printMaze();
@@ -204,6 +181,12 @@ bool SimMaze::loadMazeFromFile() {
 void SimMaze::randSearchMaze() {
   status = Status::RandSearch;
   sMaze.randSearch(&oMaze);
+}
+
+void SimMaze::floodMaze() {
+  status = Status::FloodSearch;
+  sMaze.floodFill(&oMaze);
+
 }
 
 
