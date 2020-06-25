@@ -166,6 +166,7 @@ void SimMaze::editMaze() {
 }
 
 bool SimMaze::saveMazeToFile() {
+	
   return true;
 }
 
