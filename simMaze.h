@@ -21,12 +21,11 @@
  * 
  */
 
-
 #pragma once
 
 #include <opencv2/highgui.hpp>
 #include <opencv2/imgproc.hpp>
-#include <opencv2/videoio.hpp>
+#include <memory>
 #include "maze.h"
 
 namespace sm {
@@ -49,6 +48,12 @@ public:
   static Status getStatus() { return status; }
   ~SimMaze() {}
 private:
+  cv::Mat matSimMaze;
+  static inline std::string winSim {"pinMode Simulator Maze "}; 
+  static inline Status status = Status::Idle;
+  std::shared_ptr<Maze> oMaze;
+  std::shared_ptr<Maze> sMaze;
+  // private methods
   void updateMazez();
   void BuildMaze();
   void editMaze();
@@ -58,13 +63,6 @@ private:
   void floodMaze();
   void newMaze();
   void genMaze();
-  cv::Mat matSim;
-  Maze oMaze;
-  Maze sMaze;
-  int smW;
-  int smH;
-  static inline std::string winSim {"pinMode Simulator Maze "}; 
-  static inline Status status = Status::Idle;
 };
 
 }

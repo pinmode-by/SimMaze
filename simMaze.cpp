@@ -4,8 +4,6 @@
 #include <fstream>
 #include <cstring>
 
-
-
 static void onMouse(int event, int x, int y, int flags, void* param) {
   cv::Mat *pm = (cv::Mat*)(param);
   switch(event) {
@@ -31,17 +29,19 @@ SimMaze::SimMaze (cv::Size sz, int goal) {
   int pWidth = (sMax < 9) ? 55 : ((sMax < 12) ? 45 : 30);
   int wWidth = 5; 
   const int cWidth = pWidth + wWidth;
-  smW = 60 + sz.width * cWidth + 60 + sz.width * cWidth + 180;
-  smH = 60 + sz.height * cWidth + 60;
-  matSim = Mat(cv::Size(smW, smH), CV_8UC3, cv::Scalar(230, 230, 230));
-  sMaze = Maze(matSim, sz, Point(60, 50), goal, pWidth, wWidth);
-  oMaze = Maze(matSim, sz, Point(60 + sz.width * cWidth + 60, 50), goal,
-              pWidth, wWidth);
+  int smW = 60 + sz.width * cWidth + 60 + sz.width * cWidth + 180;
+  int smH = 60 + sz.height * cWidth + 60;
+  matSimMaze = Mat(cv::Size(smW, smH), CV_8UC3, cv::Scalar(230, 230, 230));
+  sMaze = std::make_shared<Maze>(matSimMaze, sz, Point(60, 50),
+          goal, pWidth, wWidth);
+  oMaze = std::make_shared<Maze>(matSimMaze, sz,
+          Point(60 + sz.width * cWidth + 60, 50), goal, pWidth, wWidth);
   winSim += std::to_string(sz.height) + " x " + std::to_string(sz.width);
-  namedWindow(winSim, WINDOW_AUTOSIZE | WINDOW_GUI_EXPANDED);
-  //BuildMaze();
+  namedWindow(winSim, WINDOW_AUTOSIZE);
+
   std::cout << SimMaze::getNameWinSim() << std::endl;
-  cv::setMouseCallback(SimMaze::getNameWinSim(), onMouse, (void*)&matSim);
+  cv::setMouseCallback(SimMaze::getNameWinSim(), onMouse,
+     (void*)&matSimMaze);
 }
 
 void SimMaze::run() {
@@ -117,26 +117,26 @@ void SimMaze::run() {
 }
 
 void SimMaze::updateMazez() {
-  oMaze.update();
-  sMaze.update();
-  imshow(winSim, matSim);
+  oMaze->update();
+  sMaze->update();
+  imshow(winSim, matSimMaze);
 }
 
 void SimMaze::newMaze() {
-  oMaze.buildNew();
-  sMaze.clean();
+  oMaze->buildNew();
+  sMaze->clean();
 }
 
 void SimMaze::genMaze() {
   status = Status::Gen;
-  sMaze.clean();
-  oMaze.generate();
+  sMaze->clean();
+  oMaze->generate();
 }
 
 void SimMaze::editMaze() {
   status = Status::Edit;
-  sMaze.clean();
-  oMaze.edit();
+  sMaze->clean();
+  oMaze->edit();
 }
 
 bool SimMaze::saveMazeToFile() {
@@ -145,8 +145,8 @@ bool SimMaze::saveMazeToFile() {
 }
 
 bool SimMaze::loadMazeFromFile() {
-  oMaze.clean();
-  sMaze.clean();
+  oMaze->clean();
+  sMaze->clean();
   std::string fileMaze ("simMaze.maz"); 
   std::ifstream ifs(fileMaze, std::ifstream::binary);
   if (!ifs) {
@@ -156,14 +156,14 @@ bool SimMaze::loadMazeFromFile() {
   }
   
   int read_bytes = 0;
-  std::cout << "Reading maze file... <" << fileMaze << "> : " <<  std::endl;
+  std::cout << "Reading maze file... <" << fileMaze << "> : " << std::endl;
   while (true) {
     char ch;
     ifs.read(&ch, 1);
     if (ifs.eof()) {
       break;
     }
-    oMaze.setCell(read_bytes, static_cast<uchar>(ch));
+    oMaze->setCell(read_bytes, static_cast<uchar>(ch));
     ++read_bytes;
     /*
     std::cout << std::hex << static_cast<int>(ch) << ' ' ;
@@ -173,19 +173,18 @@ bool SimMaze::loadMazeFromFile() {
     */
   }
   std::cout << "\n\n" << std::endl;
-  oMaze.printMaze();
-  
+  oMaze->printMaze();
   return true;
 }
 
 void SimMaze::randSearchMaze() {
   status = Status::RandSearch;
-  sMaze.randSearch(&oMaze);
+  sMaze->randSearch(oMaze.get());
 }
 
 void SimMaze::floodMaze() {
   status = Status::FloodSearch;
-  sMaze.floodFill(&oMaze);
+  sMaze->floodFill(oMaze.get());
 
 }
 

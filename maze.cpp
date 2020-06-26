@@ -28,6 +28,7 @@ Maze::Maze (cv::Mat& base, cv::Size s, cv::Point p, int goal,
   // assign matrix mapMaze size: mazeH x mazeW 
   mapMaze.assign(MAZE_WIDTH * MAZE_WIDTH, 0);
   srand(clock());
+  
   onCreate();
 
 }
@@ -243,19 +244,16 @@ void Maze::drawCell(int col, int row) {
 }
 
 void Maze::update() {
-   
   if (onUserUpdate != nullptr) {
     // call background function 
     (this->*onUserUpdate)();
   }
-
   // Draw Maze
   for (int x = 0; x < mazeH; ++x) { 
     for (int y = 0; y < mazeW; ++y) { 
       drawCell(x, y);
     }
   }
-  
 }
 
 void Maze::buildNew() {
