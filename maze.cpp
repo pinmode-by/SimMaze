@@ -39,7 +39,7 @@ void Maze::onCreate() {
   // clear stack
   stackMaze = std::stack<CellType>();
   // clear pointers
-  onUserUpdate = nullptr;
+  onMazeUpdate = nullptr;
   originMaze = nullptr;
   // assign outside walls Maze
   for (int i = 0; i < mazeW; ++i) { 
@@ -244,9 +244,9 @@ void Maze::drawCell(int col, int row) {
 }
 
 void Maze::update() {
-  if (onUserUpdate != nullptr) {
+  if (onMazeUpdate != nullptr) {
     // call background function 
-    (this->*onUserUpdate)();
+    (this->*onMazeUpdate)();
   }
   // Draw Maze
   for (int x = 0; x < mazeH; ++x) { 
@@ -332,7 +332,7 @@ void Maze::algGeneration() {
     }
     
   } else {
-    onUserUpdate = nullptr;
+    onMazeUpdate = nullptr;
 
     std::cout << "Size of stack : " << stackMaze.size() << std::endl;
     stackMaze = std::stack<CellType>();
@@ -386,7 +386,7 @@ void Maze::generate() {
   setColorCurrent({0, 255, 255});
   stackMaze.push(getStartPosition()); // {0, 0}
   // pointer to member function
-  onUserUpdate = &Maze::algGeneration;
+  onMazeUpdate = &Maze::algGeneration;
 }
 
 
@@ -401,7 +401,7 @@ void Maze::onEdit() {
 }
 
 void Maze::edit() {
-  onUserUpdate = &Maze::onEdit;
+  onMazeUpdate = &Maze::onEdit;
 }
 
 bool Maze::isWall(cv::Point p) {
@@ -504,7 +504,7 @@ void Maze::algRandSearch() {
     }
   } else {
     // finish randSearch
-    onUserUpdate = nullptr;
+    onMazeUpdate = nullptr;
     // draw goal cell
 
     // clear stack 
@@ -529,39 +529,7 @@ void Maze::randSearch(Maze *origin) {
   }
   prevDir = SOUTHN;
   // set handler - pointer to algRandSearch
-  onUserUpdate = &Maze::algRandSearch;
-}
-
-void Maze::algfloodFill() {
-
-}
-
-void Maze::floodFill(Maze *origin) {
-  clean();
-  // copy pointer to origin Maze
-  originMaze = origin;
-  // get start position
-  auto [startC, startR] = originMaze->getStartPosition();
-  mapMaze[cellN(startC, startR)] |= VISITED;
-  setWall(startC, startR, EAST);
-  setColorCurrent({0, 255, 0});
-  goalPositions = originMaze->getGoalPosition();
-  if (goalPositions.empty()) {
-    // standart positions
-    setStandardGoal();
-  }  
-  if (goalMaze == GoalDiagonal) {
-    clearWall(mazeW - 1, mazeH - 1, SOUTH);
-    setWall(mazeW - 1, mazeH - 1, WEST);
-  }
-  // set handler - pointer to 
-  onUserUpdate = &Maze::algfloodFill;
-  
-}
-
-void Maze::advFloodFill() {
-  // set handler - pointer to 
-  onUserUpdate = &Maze::advFloodFill;
+  onMazeUpdate = &Maze::algRandSearch;
 }
 
 // 

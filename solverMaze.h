@@ -1,5 +1,5 @@
 /*
- * simMaze.h
+ * solverMaze.h
  * 
  * Copyright 2020 pinMode <info@pinmode.by>
  * 
@@ -27,47 +27,29 @@
 #include <opencv2/imgproc.hpp>
 #include <memory>
 #include "maze.h"
-#include "solverMaze.h"
 
 namespace sm {
 
-enum class Status {
-  Idle,
-  Gen,
-  Edit,
-  RandSearch,
-  FloodSearch
-};
-
-using namespace cv;
-
-class SimMaze {
-  
+class SolverMaze {
 public:
-  
-  SimMaze(cv::Size s, int goal);
-  void run();
-  static std::string getNameWinSim() { return winSim; }
-  static Status getStatus() { return status; }
-  ~SimMaze() {}
+  SolverMaze(std::shared_ptr<Maze> oMaze, std::shared_ptr<Maze> sMaze) 
+    : originM(oMaze), solveM(sMaze) {
+ } 
+  ~SolverMaze() {}
+  void update();
+  void algFloodFill();
+  void floodFill();
+  void advFloodFill();
+  void followWalls();
+  void randSearch();
 private:
- 
-  cv::Mat matSimMaze;
-  static inline std::string winSim {"pinMode Simulator Maze "}; 
-  static inline Status status = Status::Idle;
-  std::shared_ptr<Maze> oMaze;
-  std::shared_ptr<Maze> sMaze;
-  std::shared_ptr<SolverMaze> solver;
-  // private methods
-  void updateMazez();
-  void BuildMaze();
-  void editMaze();
-  bool saveMazeToFile();
-  bool loadMazeFromFile();
-  void randSearchMaze();
-  void floodMaze();
-  void newMaze();
-  void genMaze();
+  using solverCallback = void(SolverMaze::*)();
+  solverCallback onSolverUpdate = nullptr;
+  std::shared_ptr<Maze> originM;
+  std::shared_ptr<Maze> solveM;
+  void setSolverCallback(solverCallback handler) {
+    onSolverUpdate = handler;
+  }
 };
 
 }

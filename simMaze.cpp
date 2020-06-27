@@ -36,6 +36,7 @@ SimMaze::SimMaze (cv::Size sz, int goal) {
           goal, pWidth, wWidth);
   oMaze = std::make_shared<Maze>(matSimMaze, sz,
           Point(60 + sz.width * cWidth + 60, 50), goal, pWidth, wWidth);
+  solver = std::make_shared<SolverMaze>(oMaze, sMaze);      
   winSim += std::to_string(sz.height) + " x " + std::to_string(sz.width);
   namedWindow(winSim, WINDOW_AUTOSIZE);
 
@@ -117,6 +118,7 @@ void SimMaze::run() {
 }
 
 void SimMaze::updateMazez() {
+  solver->update();
   oMaze->update();
   sMaze->update();
   imshow(winSim, matSimMaze);
@@ -184,7 +186,7 @@ void SimMaze::randSearchMaze() {
 
 void SimMaze::floodMaze() {
   status = Status::FloodSearch;
-  sMaze->floodFill(oMaze.get());
+  solver->floodFill();
 
 }
 

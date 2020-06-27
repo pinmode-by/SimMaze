@@ -28,8 +28,12 @@
 #include <iostream>
 #include <stack>
 
+
 namespace sm {
   
+using RowType = int;
+using ColType = int;
+using CellType = std::pair<ColType, RowType>; 
 using uchar = unsigned char;
 
 enum WALL_CELL {
@@ -53,6 +57,8 @@ extern MouseEvent mEvent;
 
 const int MAZE_WIDTH = 16;
 
+class SolverMaze;
+
 class Maze {
 public:
   Maze() = default;
@@ -65,6 +71,9 @@ public:
   }
   void setWall(int col, int row, int wall);
   void clearWall(int col, int row, int wall);
+  void setVisited(int col, int row) {
+    mapMaze[cellN(col, row)] |= VISITED;
+  }
   void setCell(int cell, uchar value) {
     mapMaze[cell] = value;
   };
@@ -72,8 +81,6 @@ public:
     return mapMaze[cell];
   };
   
-  void setStartGoalCells();
-
   void buildNew();
   void clean();
   void edit();
@@ -82,36 +89,34 @@ public:
   void update();
   bool isWall(cv::Point p);
   void randSearch(Maze *origin);
-  void floodFill(Maze *origin);
   void printMaze();
+  CellType getStartPosition() {return {0, 0}; }
+  std::vector<CellType> getGoalPosition() {
+    return goalPositions;
+  }
+  void setColorVisited(cv::Scalar newColor) {
+     colorVISITED = cv::Scalar(newColor); }
+  void setColorCurrent(cv::Scalar newColor) {
+     colorCURRENT = cv::Scalar(newColor); }   
   ~Maze() {}
+  friend SolverMaze;
   
 private:
   using pCallback = void(Maze::*)();
-  pCallback onUserUpdate = nullptr;
-  using RowType = int;
-  using ColType = int;
-  using CellType = std::pair<ColType, RowType>;
-  
+  pCallback onMazeUpdate = nullptr;
+
   void onCreate();
   void onEdit();
   void drawStandMaze();
   void drawCell(int col, int row);
   void algGeneration();
   void algRandSearch();
-  void algfloodFill();
-  void advFloodFill();
   bool isGoal(CellType cell);
-  void setColorVisited(cv::Scalar newColor) {
-     colorVISITED = cv::Scalar(newColor); }
-  void setColorCurrent(cv::Scalar newColor) {
-     colorCURRENT = cv::Scalar(newColor); }   
-  CellType getStartPosition() {return {0, 0}; }
-  std::vector<CellType> getGoalPosition() {
-    return goalPositions;
-  }
-  std::vector<CellType> goalPositions {};
+  void setStartGoalCells();
   void setStandardGoal();
+ 
+  std::vector<CellType> goalPositions {};
+ 
   cv::Point offset; // offset from SimMaze 
   
   std::vector<uchar> mapMaze;
