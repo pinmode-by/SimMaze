@@ -26,30 +26,41 @@
 #include <opencv2/highgui.hpp>
 #include <opencv2/imgproc.hpp>
 #include <memory>
+#include <queue>
 #include "maze.h"
 
 namespace sm {
 
+constexpr int MAZE_AREA = MAZE_WIDTH * MAZE_WIDTH;
+constexpr int MAX_DISTANCE = MAZE_AREA - 1;
+
 class SolverMaze {
 public:
-  SolverMaze(std::shared_ptr<Maze> oMaze, std::shared_ptr<Maze> sMaze) 
-    : originM(oMaze), solveM(sMaze) {
- } 
+  SolverMaze(std::shared_ptr<Maze> oMaze, std::shared_ptr<Maze> sMaze);
   ~SolverMaze() {}
   void update();
   void algFloodFill();
   void floodFill();
   void advFloodFill();
-  void followWalls();
+  void wallFollower();
   void randSearch();
 private:
+  
   using solverCallback = void(SolverMaze::*)();
   solverCallback onSolverUpdate = nullptr;
+  std::vector<uchar> mapDistances;
   std::shared_ptr<Maze> originM;
   std::shared_ptr<Maze> solveM;
+  std::queue<CellType> queueD;
+  bool isWallExists(int col, int row, uchar wall);
+  void resetDistancesAndQueue();
+  void setDistances();
+  void updateDistances();
+  void queuePushDistances(int col, int row, int distance);
   void setSolverCallback(solverCallback handler) {
     onSolverUpdate = handler;
   }
+  void printMapDistances();
 };
 
 }

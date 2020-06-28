@@ -9,5 +9,5 @@ bool parseCommamdLine(int argc, char** argv,
   // if parse == false -> cout USAGE 
   opt.cmdSize = cv::Size(5, 5);  
   
-  return true ;
+  return true;
 }

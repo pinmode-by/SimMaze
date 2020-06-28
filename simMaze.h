@@ -50,6 +50,7 @@ public:
   static std::string getNameWinSim() { return winSim; }
   static Status getStatus() { return status; }
   ~SimMaze() {}
+  
 private:
  
   cv::Mat matSimMaze;
@@ -58,6 +59,7 @@ private:
   std::shared_ptr<Maze> oMaze;
   std::shared_ptr<Maze> sMaze;
   std::shared_ptr<SolverMaze> solver;
+  
   // private methods
   void updateMazez();
   void BuildMaze();
