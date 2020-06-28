@@ -26,7 +26,7 @@ namespace sm {
 
 SimMaze::SimMaze (cv::Size sz, int goal) {
   const int sMax = std::max(sz.width, sz.height);
-  int pWidth = (sMax < 9) ? 55 : ((sMax < 12) ? 45 : 30);
+  int pWidth = (sMax < 9) ? 60 : ((sMax < 12) ? 45 : 30);
   int wWidth = 5; 
   const int cWidth = pWidth + wWidth;
   int smW = 60 + sz.width * cWidth + 60 + sz.width * cWidth + 180;

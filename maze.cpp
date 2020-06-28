@@ -392,12 +392,14 @@ void Maze::generate() {
 void Maze::onEdit() {
   if (sm::isMouseEvent) {
     if (isOriginMaze()) {
-      std::cout << "Edit :" << "at (" << mEvent.x << "," << mEvent.y << 
+      int x = mEvent.x - offset.x;
+      int y = mEvent.y - offset.y;
+      
+      std::cout << "Edit :" << "at (" << x << "," << y << 
          ")" << std::endl;
     }
     // flag off 
     isMouseEvent = false;
-  
   }
 }
 

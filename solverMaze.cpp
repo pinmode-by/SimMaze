@@ -32,6 +32,7 @@ void SolverMaze::floodFill() {
     // standart positions
      solveM->setStandardGoal();
   }  
+  solveM->goalMaze  = originM->goalMaze;
   if (solveM->goalMaze == GoalDiagonal) {
     solveM->clearWall(solveM->mazeW - 1,  solveM->mazeH - 1, SOUTH);
     solveM->setWall(solveM->mazeW - 1,  solveM->mazeH - 1, WEST);
@@ -39,6 +40,7 @@ void SolverMaze::floodFill() {
   // set handler - pointer to 
   onSolverUpdate = &SolverMaze::algFloodFill;
   setDistances();
+  originM->printMaze();
   printMapDistances();
 }
 

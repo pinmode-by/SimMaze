@@ -134,7 +134,7 @@ private:
   cv::Scalar colorCURRENT {0, 255, 255};
   int prevDir;
   // Algorithm generations mazes variables
-  int  nVisitedCells;
+  int nVisitedCells;
   int entryInGoal = 0;
   
   std::stack <CellType> stackMaze; 
