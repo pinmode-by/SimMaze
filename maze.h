@@ -114,7 +114,8 @@ private:
   bool isGoal(CellType cell);
   void setStartGoalCells();
   void setStandardGoal();
- 
+  bool isOriginMaze();
+  
   std::vector<CellType> goalPositions {};
  
   cv::Point offset; // offset from SimMaze 

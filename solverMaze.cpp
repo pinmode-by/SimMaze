@@ -111,7 +111,7 @@ void SolverMaze::printMapDistances() {
   for (int i = 0; i < solveM->mazeH; ++i) {
     for (int j = 0; j < solveM->mazeW; ++j) {
       std::cout << std::setw(4) <<
-      static_cast<int>(mapDistances[solveM->cellN(j, i)]) << ' ';
+      static_cast<int>(mapDistances[solveM->cellN(j, i)]);
     }
     std::cout << std::endl;
   }
