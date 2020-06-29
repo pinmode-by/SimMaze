@@ -45,6 +45,8 @@ enum WALL_CELL {
   ONROUTE = 0x20
 };
 
+enum { NORTHN, EASTN, SOUTHN, WESTN };
+  
 extern bool isMouseEvent;
 
 struct MouseEvent {
@@ -71,6 +73,7 @@ public:
   }
   void setWall(int col, int row, int wall);
   void clearWall(int col, int row, int wall);
+  void setWalls(int col, int row, int valueCell);
   void setVisited(int col, int row) {
     mapMaze[cellN(col, row)] |= VISITED;
   }
@@ -80,6 +83,9 @@ public:
   uchar getCell(int cell) {
     return mapMaze[cell];
   };
+  uchar getCell( int col, int row) {
+    return mapMaze[cellN(col, row)];
+  }
   
   void buildNew();
   void clean();
@@ -137,9 +143,7 @@ private:
   int nVisitedCells;
   int entryInGoal = 0;
   
-  std::stack <CellType> stackMaze; 
-  enum { NORTHN, EASTN, SOUTHN, WESTN };
-  
+  std::stack <CellType> stackMaze;   
 };
 
 }

@@ -34,6 +34,18 @@ namespace sm {
 constexpr int MAZE_AREA = MAZE_WIDTH * MAZE_WIDTH;
 constexpr int MAX_DISTANCE = MAZE_AREA - 1;
 
+enum stepDir { 
+  NONE = -1, LEFT = 0, FRONT = 1, RIGHT = 2, BACK = 3
+};
+
+enum compassDir {
+  EASTC = 1,
+  SOUTHC = -MAZE_WIDTH,
+  WESTC = -1,
+  NORTHC = MAZE_WIDTH
+};
+
+
 class SolverMaze {
 public:
   SolverMaze(std::shared_ptr<Maze> oMaze, std::shared_ptr<Maze> sMaze);
@@ -42,6 +54,7 @@ public:
   void algFloodFill();
   void floodFill();
   void advFloodFill();
+  void algWallFollower();
   void wallFollower();
   void randSearch();
 private:
@@ -52,7 +65,12 @@ private:
   std::shared_ptr<Maze> originM;
   std::shared_ptr<Maze> solveM;
   std::queue<CellType> queueD;
+  compassDir currentDir = NORTHC;
+  compassDir nextCompassDirection(stepDir step);
+  void initAlgorithm();
   bool isWallExists(int col, int row, uchar wall);
+  bool isNeighbourVisited(int col, int row, uchar wall);
+  bool currentSideWall(stepDir side); 
   void resetDistancesAndQueue();
   void setDistances();
   void updateDistances();

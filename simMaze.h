@@ -36,6 +36,7 @@ enum class Status {
   Gen,
   Edit,
   RandSearch,
+  WallFollowerSearch,
   FloodSearch
 };
 
@@ -66,8 +67,9 @@ private:
   void editMaze();
   bool saveMazeToFile();
   bool loadMazeFromFile();
-  void randSearchMaze();
-  void floodMaze();
+  void randSearchSim();
+  void wallFollowerSim();
+  void floodFillSim();
   void newMaze();
   void genMaze();
 };

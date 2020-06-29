@@ -5,7 +5,7 @@
 #include <cstring>
 
 static void onMouse(int event, int x, int y, int flags, void* param) {
-  cv::Mat *pm = (cv::Mat*)(param);
+  //cv::Mat *pm = (cv::Mat*)(param);
   switch(event) {
     case cv::EVENT_LBUTTONDOWN: {
       if (sm::SimMaze::getStatus() == sm::Status::Edit) {
@@ -13,8 +13,8 @@ static void onMouse(int event, int x, int y, int flags, void* param) {
         sm::mEvent.x = x;
         sm::mEvent.y = y;
       } else if (sm::SimMaze::getStatus() == sm::Status::Idle) {
-        std::cout << "Idle :" << "at (" << x << "," << y << ") value is "
-         << (pm->at<cv::Vec3b>(cv::Point(x,y))) << std::endl;       
+        //std::cout << "Idle :" << "at (" << x << "," << y << ") value is "
+        // << (pm->at<cv::Vec3b>(cv::Point(x,y))) << std::endl;       
       }
     break;
     }
@@ -27,7 +27,7 @@ namespace sm {
 SimMaze::SimMaze (cv::Size sz, int goal) {
   const int sMax = std::max(sz.width, sz.height);
   int pWidth = (sMax < 9) ? 60 : ((sMax < 12) ? 45 : 30);
-  int wWidth = 5; 
+  int wWidth = 6; 
   const int cWidth = pWidth + wWidth;
   int smW = 60 + sz.width * cWidth + 60 + sz.width * cWidth + 180;
   int smH = 60 + sz.height * cWidth + 60;
@@ -49,12 +49,13 @@ void SimMaze::run() {
   const char kbCmdExit = 27;
   const char kbCmdNew = 'n';
   const char kbCmdGen = 'g';
-  const char kbCmdWrite = 'w';
+  const char kbCmdWrite = 's';
   const char kbCmdLoad = 'l';
   const char kbCmdEdit = 'e';
-  const char kbCmdSolve = 's';
+  //const char kbCmdSolve = 's';
   const char kbCmdRand = 'r';
   const char kbCmdFlood = 'f';
+  const char kbCmdWallFollower = 'w';
   const char kbCmdAdvFlood = 'a';
   const char kbCmdTest = 't';
 
@@ -90,20 +91,21 @@ void SimMaze::run() {
           std::cout << "Edit current Maze" << std::endl;
           editMaze();
           break;
-        case kbCmdSolve:
-          std::cout << "Solve the current maze by right rule algorithm" <<
-                        std::endl;
-          break;
         case kbCmdRand:
           std::cout << "Solve the current maze by random search algorithm" <<
                         std::endl;
-          randSearchMaze();
+          randSearchSim();
           break;
         case kbCmdFlood:
           std::cout << "Solve the current maze by flood fill algorithm" <<
                         std::endl;
-          floodMaze();
+          floodFillSim();
           break;
+        case kbCmdWallFollower:
+          std::cout << "Solve the current maze by wall follower" \
+                      "(right rule ) algorithm" << std::endl;
+          wallFollowerSim();
+          break;  
         case kbCmdAdvFlood:
           std::cout << "Solve the current maze by advanced flood fill algorithm" <<
                         std::endl;
@@ -179,12 +181,18 @@ bool SimMaze::loadMazeFromFile() {
   return true;
 }
 
-void SimMaze::randSearchMaze() {
+void SimMaze::randSearchSim() {
   status = Status::RandSearch;
   sMaze->randSearch(oMaze.get());
 }
 
-void SimMaze::floodMaze() {
+void SimMaze::wallFollowerSim() {
+  status = Status::WallFollowerSearch;
+  solver->wallFollower();
+}
+
+
+void SimMaze::floodFillSim() {
   status = Status::FloodSearch;
   solver->floodFill();
 

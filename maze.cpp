@@ -131,6 +131,16 @@ void Maze::setWall(int col, int row, int wall) {
   }
 }
 
+void Maze::setWalls(int col, int row, int valueCell) {
+  static uchar roseWind[] {NORTH, EAST, SOUTH, WEST};
+  for(auto dir : roseWind) {
+    if (dir & valueCell) {
+      setWall(col, row, dir);
+    }
+  }
+}
+
+
 void Maze::clearWall(int col, int row, int wall){
   
   mapMaze[cellN(col, row)] &= ~wall;
