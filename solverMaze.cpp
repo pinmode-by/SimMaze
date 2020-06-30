@@ -28,9 +28,11 @@ void SolverMaze::update() {
 void SolverMaze::initAlgorithm() {
   
   solveM->clean();
+  // clear stack
+  stackDir = std::stack<compassDir>();
   // get start position
   auto [startC, startR] = originM->getStartPosition();
-  solveM->setVisited(startC, startR);
+
   solveM->setWall(startC, startR, EAST);
   solveM->setColorCurrent({0, 255, 0});
   solveM->goalPositions = originM->getGoalPosition();
@@ -86,11 +88,11 @@ compassDir SolverMaze::nextCompassDirection(stepDir step) {
   return static_cast<compassDir>(-currentDir);
 }
 
-bool SolverMaze::currentSideWall(stepDir side) {
+uchar SolverMaze::currentSideWall(stepDir side) {
 
   uchar bit = 0;
   compassDir direction = nextCompassDirection(side);
-  std::cout <<  "next direction  : " << direction << std::endl;
+  //std::cout <<  "next direction  : " << direction << std::endl;
   switch (direction) {
   case EASTC:
     bit = EAST;
@@ -104,7 +106,7 @@ bool SolverMaze::currentSideWall(stepDir side) {
   case NORTHC:
     bit = NORTH;
     break;
-	default:
+  default:
     break;
   }
   return bit;
@@ -129,23 +131,26 @@ bool SolverMaze::isNeighbourVisited(int col, int row, uchar wall) {
 }
 
 void SolverMaze::algWallFollower() {
-  std::this_thread::sleep_for(100ms);
+  std::this_thread::sleep_for(500ms);
   const auto [col, row] = solveM->stackMaze.top();
+  std::cout <<  "----- x:" << 
+         col << "   y:" << row << 
+         "  DIR : "  << currentDir << std::endl;
+  
   if (!solveM->isGoal({col, row})) {  
-    // set walls and neighbours
     int valueCell = originM->getCell(col, row);
     // set walls if not visited
-    solveM->setWalls(col, row, valueCell);
-    
+    if ((solveM->getCell(col, row) & VISITED) == 0) {
+      solveM->setWalls(col, row, valueCell);
+      solveM->setVisited(col, row);
+    }
     // create a set of neighbors
     std::vector<int> neighbour;
-    int wall0  = currentSideWall(RIGHT);
-    std::cout <<  "wall 0 : " << wall0 << std::endl;
     
     if (int wall = currentSideWall(RIGHT);
         !isWallExists(col, row, wall) &&
         !isNeighbourVisited(col, row, wall)) {
-      std::cout <<  "wall 1 : " << wall << std::endl;
+      //std::cout <<  "wall 1 : " << wall << std::endl;
       neighbour.push_back(wall);
     } else if (int wall = currentSideWall(FRONT); 
         !isWallExists(col, row, wall) &&
@@ -155,7 +160,7 @@ void SolverMaze::algWallFollower() {
     } else if (int wall = currentSideWall(LEFT);
         !isWallExists(col, row, wall) &&
         !isNeighbourVisited(col, row, wall)) {
-      std::cout <<  "wall 3: " << wall << std::endl;
+      //std::cout <<  "wall 3: " << wall << std::endl;
       neighbour.push_back(wall);
     } 
     
@@ -163,32 +168,37 @@ void SolverMaze::algWallFollower() {
       
       int nextDir = neighbour[0];
       std::cout <<  "nextDir : " << nextDir << std::endl;
+      
       switch (nextDir) {
         case NORTH: 
           solveM->stackMaze.push({col, row + 1});
-          solveM->setVisited(col, row + 1);
+          //solveM->setVisited(col, row + 1);
           currentDir = NORTHC;
           break;
         case WEST: 
           solveM->stackMaze.push({col - 1, row});
-          solveM->setVisited(col -1, row);
+          //solveM->setVisited(col -1, row);
           currentDir = WESTC;
           break; 
         case EAST: 
           solveM->stackMaze.push({col + 1, row});
-          solveM->setVisited(col + 1, row);
+          //solveM->setVisited(col + 1, row);
           currentDir = EASTC;
           break; 
         case SOUTH: 
           solveM->stackMaze.push({col, row - 1});
-          solveM->setVisited(col, row - 1);
+          //solveM->setVisited(col, row - 1);
           currentDir = SOUTHC;
           break;  
       }
+      stackDir.push(currentDir);
         
     } else {
       // No available neighbours so backtrack!
+      currentDir = static_cast<compassDir>(-stackDir.top()); 
+      stackDir.pop();
       solveM->stackMaze.pop();
+      
     }
     
     
@@ -244,6 +254,7 @@ void SolverMaze::algWallFollower() {
 void SolverMaze::wallFollower() {
   initAlgorithm();
   currentDir = NORTHC;
+  stackDir.push(currentDir);
   solveM->stackMaze.push({solveM->getStartPosition()});
   // set handler - pointer to 
   onSolverUpdate = &SolverMaze::algWallFollower;

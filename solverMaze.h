@@ -65,12 +65,13 @@ private:
   std::shared_ptr<Maze> originM;
   std::shared_ptr<Maze> solveM;
   std::queue<CellType> queueD;
+  std::stack<compassDir> stackDir;
   compassDir currentDir = NORTHC;
   compassDir nextCompassDirection(stepDir step);
   void initAlgorithm();
   bool isWallExists(int col, int row, uchar wall);
   bool isNeighbourVisited(int col, int row, uchar wall);
-  bool currentSideWall(stepDir side); 
+  uchar currentSideWall(stepDir side); 
   void resetDistancesAndQueue();
   void setDistances();
   void updateDistances();

@@ -447,7 +447,7 @@ bool Maze::isGoal(CellType cell) {
 
 void Maze::algRandSearch() { 
 
-  std::this_thread::sleep_for(10ms);
+  std::this_thread::sleep_for(200ms);
   const auto [col, row] = stackMaze.top();
   
   if (!isGoal({col, row})) {   
