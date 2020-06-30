@@ -131,12 +131,8 @@ bool SolverMaze::isNeighbourVisited(int col, int row, uchar wall) {
 }
 
 void SolverMaze::algWallFollower() {
-  std::this_thread::sleep_for(500ms);
-  const auto [col, row] = solveM->stackMaze.top();
-  std::cout <<  "----- x:" << 
-         col << "   y:" << row << 
-         "  DIR : "  << currentDir << std::endl;
-  
+  std::this_thread::sleep_for(50ms);
+  const auto [col, row] = solveM->stackMaze.top();  
   if (!solveM->isGoal({col, row})) {  
     int valueCell = originM->getCell(col, row);
     // set walls if not visited
@@ -150,24 +146,21 @@ void SolverMaze::algWallFollower() {
     if (int wall = currentSideWall(RIGHT);
         !isWallExists(col, row, wall) &&
         !isNeighbourVisited(col, row, wall)) {
-      //std::cout <<  "wall 1 : " << wall << std::endl;
       neighbour.push_back(wall);
     } else if (int wall = currentSideWall(FRONT); 
         !isWallExists(col, row, wall) &&
         !isNeighbourVisited(col, row, wall)) {
-      std::cout <<  "wall 2: " << wall << std::endl;
       neighbour.push_back(wall);
     } else if (int wall = currentSideWall(LEFT);
         !isWallExists(col, row, wall) &&
         !isNeighbourVisited(col, row, wall)) {
-      //std::cout <<  "wall 3: " << wall << std::endl;
       neighbour.push_back(wall);
     } 
     
     if (!neighbour.empty()) {
       
       int nextDir = neighbour[0];
-      std::cout <<  "nextDir : " << nextDir << std::endl;
+      //std::cout <<  "nextDir : " << nextDir << std::endl;
       
       switch (nextDir) {
         case NORTH: 
@@ -194,57 +187,12 @@ void SolverMaze::algWallFollower() {
       stackDir.push(currentDir);
         
     } else {
-      // No available neighbours so backtrack!
+      // No available directions so backtrack!
       currentDir = static_cast<compassDir>(-stackDir.top()); 
       stackDir.pop();
-      solveM->stackMaze.pop();
-      
+      solveM->stackMaze.pop();   
     }
     
-    
-    /*
-    if (valueCell & NORTH) {
-      solveM->setWall(col, row, NORTH);
-    } else if (prevDir != -NORTHN && (row < solveM->mazeH - 1) &&
-    ((solveM->getCell(col - 1, row) & VISITED) == 0)) {
-      // North neigbour
-      neighbours.push_back(NORTHN);
-    }
-
-    if (valueCell & WEST) {
-      solveM->setWall(col, row, WEST);
-    } else if (prevDir != WESTN && (row < solveM->mazeH - 1) &&
-    ((solveM->getCell(col - 1, row) & VISITED) == 0)) {
-      // West neigbour
-      neighbours.push_back(WESTN);
-    }
-    
-    if (valueCell & SOUTH) {
-      solveM->setWall(col, row, SOUTH);
-    } else if (prevDir != SOUTHN && (row < solveM->mazeH - 1) &&
-    ((solveM->getCell(col - 1, row) & VISITED) == 0)) {
-      // South neigbour
-      neighbours.push_back(SOUTHN); 
-    }
-    
-    if (valueCell & EAST) {
-      solveM->setWall(col, row, EAST);
-    } else if (prevDir != EASTN && (row < solveM->mazeH - 1) &&
-    ((solveM->getCell(col - 1, row) & VISITED) == 0)) {
-      // East neigbour
-      neighbours.push_back(EASTN); 
-    }
-    
-    if (!neighbours.empty()) {
-      int nextDir = neighbours[rand() % neighbours.size()];
-    
-    
-    } else {
-      // No available neighbours so backtrack!
-      solveM->stackMaze.pop();
-    }
-    */
-  
   } else {
      onSolverUpdate = nullptr;
   }
@@ -256,6 +204,7 @@ void SolverMaze::wallFollower() {
   currentDir = NORTHC;
   stackDir.push(currentDir);
   solveM->stackMaze.push({solveM->getStartPosition()});
+  solveM->update();
   // set handler - pointer to 
   onSolverUpdate = &SolverMaze::algWallFollower;
 }

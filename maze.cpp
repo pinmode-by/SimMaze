@@ -258,8 +258,8 @@ void Maze::update() {
     (this->*onMazeUpdate)();
   }
   // Draw Maze
-  for (int x = 0; x < mazeH; ++x) { 
-    for (int y = 0; y < mazeW; ++y) { 
+  for (int x = 0; x < mazeW; ++x) { 
+    for (int y = 0; y < mazeH; ++y) { 
       drawCell(x, y);
     }
   }
@@ -447,7 +447,7 @@ bool Maze::isGoal(CellType cell) {
 
 void Maze::algRandSearch() { 
 
-  std::this_thread::sleep_for(200ms);
+  std::this_thread::sleep_for(50ms);
   const auto [col, row] = stackMaze.top();
   
   if (!isGoal({col, row})) {   
