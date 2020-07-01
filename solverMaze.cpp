@@ -46,6 +46,9 @@ void SolverMaze::initAlgorithm() {
     solveM->clearWall(solveM->mazeW - 1,  solveM->mazeH - 1, SOUTH);
     solveM->setWall(solveM->mazeW - 1,  solveM->mazeH - 1, WEST);
   }
+  for(const auto [col, row] : solveM->goalPositions) {
+    solveM->mapMaze[solveM->cellN(col, row)] |= TARGET_CELL;
+  }
 }
 
 void SolverMaze::floodFill() {
@@ -144,7 +147,8 @@ void SolverMaze::algWallFollower() {
     // create a set of neighbors
     std::vector<int> neighbour;
     
-    if (int wall = currentSideWall(RIGHT);
+    
+    if (int wall = currentSideWall(isRightRule ? RIGHT : LEFT);
         !isWallExists(col, row, wall) &&
         !isNeighbourVisited(col, row, wall)) {
       neighbour.push_back(wall);
@@ -152,7 +156,7 @@ void SolverMaze::algWallFollower() {
         !isWallExists(col, row, wall) &&
         !isNeighbourVisited(col, row, wall)) {
       neighbour.push_back(wall);
-    } else if (int wall = currentSideWall(LEFT);
+    } else if (int wall = currentSideWall(isRightRule ? LEFT : RIGHT);
         !isWallExists(col, row, wall) &&
         !isNeighbourVisited(col, row, wall)) {
       neighbour.push_back(wall);
@@ -208,6 +212,8 @@ void SolverMaze::wallFollower() {
   solveM->update();
   // set handler - pointer to 
   onSolverUpdate = &SolverMaze::algWallFollower;
+  solveM->setColorCurrent({0, 255, 0});
+  isRightRule = rand() % 2;
 }
 
 

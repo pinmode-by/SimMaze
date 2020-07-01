@@ -229,12 +229,19 @@ void Maze::drawCell(int col, int row) {
         cv::FILLED,
         cv::LINE_8 );
   }
-  
+
   if (mapMaze[cellN(col, row)] & START_CELL) {
     rectangle(matMaze,
         cv::Point(cX + wallWidth, cY - wallWidth),
         cv::Point(cX + cellWidth - 1, cY - cellWidth + 1),
         {0, 255, 255},
+        cv::FILLED,
+        cv::LINE_8 );
+  } else if (mapMaze[cellN(col, row)] & TARGET_CELL) {
+    rectangle(matMaze,
+        cv::Point(cX + wallWidth, cY - wallWidth),
+        cv::Point(cX + cellWidth - 1, cY - cellWidth + 1),
+        {200, 213, 48}, //{31, 47, 0},
         cv::FILLED,
         cv::LINE_8 );
   } else if (mapMaze[cellN(col, row)] & VISITED) {
@@ -375,6 +382,7 @@ void Maze::generate() {
   // for finish cells
   if (goalMaze == GoalDiagonal) {
     clearWall(mazeW - 1, mazeH - 1, SOUTH);
+    mapMaze[cellN(mazeW - 1,  mazeH - 1)] |= TARGET_CELL;
     mapMaze[cellN(mazeW - 1, mazeH - 1)] |= VISITED;
     nVisitedCells = 2;
   } else {
@@ -401,9 +409,13 @@ void Maze::generate() {
     const auto [nc, nr ] = goalCells[entryInGoal / 2];
     clearWall(nc, nr, goalWalls[entryInGoal]);
     nVisitedCells = 5;
+    for(const auto [col, row] : goalCells) {
+      mapMaze[cellN(col, row)] |= TARGET_CELL;
+    }
   }
   setColorCurrent({0, 255, 255});
   stackMaze.push(getStartPosition()); // {0, 0}
+  
   // pointer to member function
   onMazeUpdate = &Maze::algGeneration;
 }
@@ -457,7 +469,7 @@ bool Maze::isGoal(CellType cell) {
 
 void Maze::algRandSearch() { 
 
-  std::this_thread::sleep_for(50ms);
+  std::this_thread::sleep_for(10ms);
   const auto [col, row] = stackMaze.top();
   
   if (!isGoal({col, row})) {   
@@ -558,6 +570,10 @@ void Maze::randSearch(Maze *origin) {
   if (goalPositions.empty()) {
     // standart positions
     setStandardGoal();
+    
+  }
+  for(const auto [col, row] : goalPositions) {
+    mapMaze[cellN(col, row)] |= TARGET_CELL;
   }
   prevDir = SOUTHN;
   // set handler - pointer to algRandSearch

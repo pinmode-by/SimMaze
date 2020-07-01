@@ -43,7 +43,8 @@ enum CELL {
   WEST    = 0x8,
   VISITED = 0x10,
   ONROUTE = 0x20,
-  START_CELL = 0x40
+  START_CELL = 0x40,
+  TARGET_CELL = 0x80
 };
 
 enum { NORTHN, EASTN, SOUTHN, WESTN };

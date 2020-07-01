@@ -67,6 +67,7 @@ private:
   std::queue<CellType> queueD;
   std::stack<compassDir> stackDir;
   compassDir currentDir = NORTHC;
+  bool isRightRule = true;
   compassDir nextCompassDirection(stepDir step);
   void initAlgorithm();
   bool isWallExists(int col, int row, uchar wall);
