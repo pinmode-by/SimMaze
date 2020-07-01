@@ -57,6 +57,7 @@ void Maze::setStartGoalCells() {
   goalPositions.clear();
   // start cell - assign EAST wall
   setWall(0, 0, EAST); 
+  mapMaze[cellN(0, 0)] |= START_CELL;
   if (goalMaze == GoalDiagonal) {
     // target - diagonal cell: assign WEST wall
     setWall(mazeW - 1, mazeW - 1, WEST);
@@ -229,7 +230,14 @@ void Maze::drawCell(int col, int row) {
         cv::LINE_8 );
   }
   
-  if (mapMaze[cellN(col, row)] & VISITED) {
+  if (mapMaze[cellN(col, row)] & START_CELL) {
+    rectangle(matMaze,
+        cv::Point(cX + wallWidth, cY - wallWidth),
+        cv::Point(cX + cellWidth - 1, cY - cellWidth + 1),
+        {0, 255, 255},
+        cv::FILLED,
+        cv::LINE_8 );
+  } else if (mapMaze[cellN(col, row)] & VISITED) {
     rectangle(matMaze,
         cv::Point(cX + wallWidth, cY - wallWidth),
         cv::Point(cX + cellWidth - 1, cY - cellWidth + 1),
@@ -238,6 +246,7 @@ void Maze::drawCell(int col, int row) {
         cv::LINE_8 );
   };
   
+ 
   // if stack is not empty - CURRENT
   if (!stackMaze.empty()) {
     auto [colC, rowC] = stackMaze.top();
@@ -362,6 +371,7 @@ void Maze::generate() {
   drawStandMaze();
   // for start cell
   mapMaze[cellN(0, 0)] |= VISITED;
+  mapMaze[cellN(0, 0)] |= START_CELL;
   // for finish cells
   if (goalMaze == GoalDiagonal) {
     clearWall(mazeW - 1, mazeH - 1, SOUTH);
@@ -541,6 +551,7 @@ void Maze::randSearch(Maze *origin) {
   auto [startC, startR] = originMaze->getStartPosition();
   mapMaze[cellN(startC, startR)] |= VISITED;
   setWall(startC, startR, EAST);
+  mapMaze[cellN(startC, startR)] |= START_CELL;
   stackMaze.push({startC, startR});
   setColorCurrent({0, 255, 0});
   goalPositions = originMaze->getGoalPosition();
@@ -557,7 +568,7 @@ void Maze::randSearch(Maze *origin) {
 // 
 void Maze::printMaze() {
   std::cout << std::hex;
-  for (int i = 0; i < mazeH; ++i) {
+  for (int i = mazeH - 1; i >= 0; --i) {
     for (int j = 0; j < mazeW; ++j) {
       std::cout << static_cast<int>(mapMaze[cellN(j, i)]) << ' ';
     }

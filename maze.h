@@ -36,13 +36,14 @@ using ColType = int;
 using CellType = std::pair<ColType, RowType>; 
 using uchar = unsigned char;
 
-enum WALL_CELL {
+enum CELL {
   NORTH   = 0x1,
   EAST    = 0x2,
   SOUTH   = 0x4,
   WEST    = 0x8,
   VISITED = 0x10,
-  ONROUTE = 0x20
+  ONROUTE = 0x20,
+  START_CELL = 0x40
 };
 
 enum { NORTHN, EASTN, SOUTHN, WESTN };

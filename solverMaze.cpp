@@ -34,6 +34,7 @@ void SolverMaze::initAlgorithm() {
   auto [startC, startR] = originM->getStartPosition();
 
   solveM->setWall(startC, startR, EAST);
+  solveM->mapMaze[solveM->cellN(startC, startR)] |= START_CELL;
   solveM->setColorCurrent({0, 255, 0});
   solveM->goalPositions = originM->getGoalPosition();
   if ( solveM->goalPositions.empty()) {
@@ -210,7 +211,6 @@ void SolverMaze::wallFollower() {
 }
 
 
-
 void SolverMaze::randSearch() {
   //initAlgorithm();
 }
@@ -265,7 +265,7 @@ bool SolverMaze::isWallExists(int col, int row, uchar wall) {
    
 void SolverMaze::printMapDistances() {
   std::cout << std::dec;
-  for (int i = 0; i < solveM->mazeH; ++i) {
+  for (int i = solveM->mazeH - 1; i >= 0; --i) {
     for (int j = 0; j < solveM->mazeW; ++j) {
       std::cout << std::setw(4) <<
       static_cast<int>(mapDistances[solveM->cellN(j, i)]);

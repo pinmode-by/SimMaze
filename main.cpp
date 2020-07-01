@@ -25,6 +25,7 @@ int main(int argc, char** argv) {
   // check command line and parse
   if (argc > 1) {
     optCmdLineMaze optMaze;
+    optMaze.goal = gm;
     if (auto isParse = parseCommamdLine(argc, argv, optMaze); isParse ) {
       sizeMaze = optMaze.cmdSize;
       gm = optMaze.goal;
@@ -38,5 +39,3 @@ int main(int argc, char** argv) {
   
   return 0;
 }
-
-//circle(line_bin, cp, 5, Scalar(0, 255, 0), FILLED);
