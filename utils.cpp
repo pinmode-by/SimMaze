@@ -17,11 +17,12 @@ bool parseCommamdLine(int argc, char** argv,
   // parse command line 
   // if parse == true -> fill struct <optCmdLineMaze>
   // if parse == false -> cout USAGE 
-  int count {1};
+
   if (argc < 3 && argc % 2 == 0) {
     printUsage();
     return false;
   }
+  int count {1};
   while (count < argc) {
     std::string option = argv[count]; 
     try {
@@ -42,6 +43,5 @@ bool parseCommamdLine(int argc, char** argv,
       return false;
     }
   }
-  
   return true;
 }

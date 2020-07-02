@@ -422,13 +422,18 @@ void Maze::generate() {
 
 
 void Maze::onEdit() {
+  static const int cellWidth = pathWidth + wallWidth;
+  
   if (sm::isMouseEvent) {
     if (isOriginMaze()) {
       int x = mEvent.x - offset.x;
       int y = mEvent.y - offset.y;
-      
+    
+      int row = (sizeMatMaze.height - y) / cellWidth;
+      int col = x / cellWidth;
       std::cout << "Edit :" << "at (" << x << "," << y << 
          ")" << std::endl;
+      std::cout << "col: " << col << " row: " << row << std::endl;
     }
     // flag off 
     isMouseEvent = false;
@@ -436,8 +441,11 @@ void Maze::onEdit() {
 }
 
 bool Maze::isOriginMaze() {
-  if ((mEvent.x >= offset.x && mEvent.x <= offset.x + matMaze.cols) &&
-     (mEvent.y >= offset.y && mEvent.y <= offset.y + matMaze.rows)) {
+  // check origin Maze and cut off outsize walls
+  if ((mEvent.x > offset.x + wallWidth && 
+       mEvent.x < offset.x + matMaze.cols - wallWidth) &&
+      (mEvent.y > offset.y + wallWidth &&
+       mEvent.y < offset.y + matMaze.rows - wallWidth)) {
       return true;
   }
   return false;
@@ -570,7 +578,6 @@ void Maze::randSearch(Maze *origin) {
   if (goalPositions.empty()) {
     // standart positions
     setStandardGoal();
-    
   }
   for(const auto [col, row] : goalPositions) {
     mapMaze[cellN(col, row)] |= TARGET_CELL;
