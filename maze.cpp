@@ -431,24 +431,33 @@ void Maze::onEdit() {
     
       int row = (sizeMatMaze.height - y) / cellWidth;
       int col = x / cellWidth;
+      
       std::cout << "Edit :" << "at (" << x << "," << y << 
          ")" << std::endl;
       std::cout << "col: " << col << " row: " << row << std::endl;
+      // check SOUTH wall
+      if (col * cellWidth + wallWidth <= x &&
+          x <= col * cellWidth + cellWidth - 1 && 
+          y <= sizeMatMaze.height - row * cellWidth - 1 &&
+          y >=sizeMatMaze.height - row * cellWidth - wallWidth) {
+        setWall(col, row, SOUTH);
+      }
+          
+    
     }
     // flag off 
     isMouseEvent = false;
   }
 }
 
+
+
 bool Maze::isOriginMaze() {
   // check origin Maze and cut off outsize walls
-  if ((mEvent.x > offset.x + wallWidth && 
-       mEvent.x < offset.x + matMaze.cols - wallWidth) &&
-      (mEvent.y > offset.y + wallWidth &&
-       mEvent.y < offset.y + matMaze.rows - wallWidth)) {
-      return true;
-  }
-  return false;
+  return ((mEvent.x > offset.x + wallWidth && 
+          mEvent.x < offset.x + matMaze.cols - wallWidth) &&
+         (mEvent.y > offset.y + wallWidth &&
+          mEvent.y < offset.y + matMaze.rows - wallWidth));
 }
 
 void Maze::edit() {

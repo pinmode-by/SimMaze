@@ -37,5 +37,5 @@ struct optCmdLineMaze {
   std::string cmdFileMaze; 
 };
  
-bool parseCommamdLine(int argc, char** argv, optCmdLineMaze & opt);
+bool parseCommamdLine(int argc, const char** argv, optCmdLineMaze & opt);
  
