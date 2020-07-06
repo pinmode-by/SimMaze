@@ -70,7 +70,6 @@ private:
   bool isRightRule = true;
   compassDir nextCompassDirection(stepDir step);
   void initAlgorithm();
-  bool isWallExists(int col, int row, uchar wall);
   bool isNeighbourVisited(int col, int row, uchar wall);
   uchar currentSideWall(stepDir side); 
   void resetDistancesAndQueue();

@@ -37,6 +37,7 @@ using CellType = std::pair<ColType, RowType>;
 using uchar = unsigned char;
 
 enum CELL {
+  NOTHING = 0x0,
   NORTH   = 0x1,
   EAST    = 0x2,
   SOUTH   = 0x4,
@@ -76,6 +77,7 @@ public:
   void setWall(int col, int row, int wall);
   void clearWall(int col, int row, int wall);
   void setWalls(int col, int row, int valueCell);
+  bool isWallExists(int col, int row, uchar wall);
   void setVisited(int col, int row) {
     mapMaze[cellN(col, row)] |= VISITED;
   }

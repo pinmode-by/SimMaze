@@ -149,15 +149,15 @@ void SolverMaze::algWallFollower() {
     
     
     if (int wall = currentSideWall(isRightRule ? RIGHT : LEFT);
-        !isWallExists(col, row, wall) &&
+        !solveM->isWallExists(col, row, wall) &&
         !isNeighbourVisited(col, row, wall)) {
       neighbour.push_back(wall);
     } else if (int wall = currentSideWall(FRONT); 
-        !isWallExists(col, row, wall) &&
+        !solveM->isWallExists(col, row, wall) &&
         !isNeighbourVisited(col, row, wall)) {
       neighbour.push_back(wall);
     } else if (int wall = currentSideWall(isRightRule ? LEFT : RIGHT);
-        !isWallExists(col, row, wall) &&
+        !solveM->isWallExists(col, row, wall) &&
         !isNeighbourVisited(col, row, wall)) {
       neighbour.push_back(wall);
     } 
@@ -245,13 +245,13 @@ void SolverMaze::updateDistances() {
     queueD.pop();
     int distance = mapDistances[solveM->cellN(col, row)] + 1;
     
-    if (!isWallExists(col, row, EAST))
+    if (!solveM->isWallExists(col, row, EAST))
       queuePushDistances(col + 1, row, distance);
-    if (!isWallExists(col, row, SOUTH))
+    if (!solveM->isWallExists(col, row, SOUTH))
       queuePushDistances(col, row - 1, distance);
-    if (!isWallExists(col, row, WEST))
+    if (!solveM->isWallExists(col, row, WEST))
       queuePushDistances(col - 1, row, distance);
-    if (!isWallExists(col, row, NORTH))
+    if (!solveM->isWallExists(col, row, NORTH))
       queuePushDistances(col, row + 1, distance);
   }
 }
@@ -264,11 +264,7 @@ void SolverMaze::queuePushDistances(int col, int row, int distance) {
   mapDistances[solveM->cellN(col, row)] = distance;
   queueD.push({col, row});
 }
- 
-bool SolverMaze::isWallExists(int col, int row, uchar wall) {
-  return solveM->mapMaze[solveM->cellN(col, row)] & wall;
-}
-   
+
 void SolverMaze::printMapDistances() {
   std::cout << std::dec;
   for (int i = solveM->mazeH - 1; i >= 0; --i) {

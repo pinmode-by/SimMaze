@@ -20,13 +20,18 @@ R"(A Micromouse Maze Solving Simulator.
     -f <FILE>           File of maze [default: maze.sim]
 )"; 
 
+static constexpr auto VERSION = 
+R"(simMaze 1.0
+Copyright (C) 2020 www.pinmode.by.
+)";
+
 int main(int argc, const char** argv) {
   std::cout.sync_with_stdio(false);
   
   std::map<std::string, docopt::value> args = docopt::docopt(USAGE,
       { std::next(argv), std::next(argv, argc) } ,
-      true,            // show help if requested
-      "simMaze 1.0");  // version string
+      true,          // show help if requested
+      VERSION);      // version string
  
   for(auto const& arg : args) {
       std::cout << arg.first << ": " << arg.second << std::endl;

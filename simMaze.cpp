@@ -5,7 +5,6 @@
 #include <cstring>
 
 static void onMouse(int event, int x, int y, int flags, void* param) {
-  //cv::Mat *pm = (cv::Mat*)(param);
   switch(event) {
     case cv::EVENT_LBUTTONDOWN: {
       if (sm::SimMaze::getStatus() == sm::Status::Edit) {

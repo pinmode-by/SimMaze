@@ -170,6 +170,11 @@ void Maze::clearWall(int col, int row, int wall){
     }
 }
 
+bool Maze::isWallExists(int col, int row, uchar wall) {
+  return mapMaze[cellN(col, row)] & wall;
+}
+
+
 void Maze::drawCell(int col, int row) {
   static const int cellWidth = pathWidth + wallWidth;
   
@@ -432,24 +437,37 @@ void Maze::onEdit() {
       int row = (sizeMatMaze.height - y) / cellWidth;
       int col = x / cellWidth;
       
-      std::cout << "Edit :" << "at (" << x << "," << y << 
-         ")" << std::endl;
       std::cout << "col: " << col << " row: " << row << std::endl;
-      // check SOUTH wall
-      if (col * cellWidth + wallWidth <= x &&
-          x <= col * cellWidth + cellWidth - 1 && 
-          y <= sizeMatMaze.height - row * cellWidth - 1 &&
-          y >=sizeMatMaze.height - row * cellWidth - wallWidth) {
-        setWall(col, row, SOUTH);
+      
+      // check SOUTH & WEST walls
+      auto isWall = [=]() {
+        if (x >= col * cellWidth + wallWidth &&
+            x <= col * cellWidth + cellWidth - 1 && 
+            y <= sizeMatMaze.height - row * cellWidth - 1 &&
+            y >= sizeMatMaze.height - row * cellWidth - wallWidth) {
+          return SOUTH;
+        } else if (
+            x >= col * cellWidth &&
+            x <= col * cellWidth + wallWidth &&
+            y <= sizeMatMaze.height - row * cellWidth - 1 - wallWidth &&
+            y >= sizeMatMaze.height - row * cellWidth - cellWidth) {
+          return WEST;
+        }
+        return NOTHING;
+      };
+      
+      if (auto wall = isWall(); wall != NOTHING) {
+        if (isWallExists(col, row, wall)) {
+          clearWall(col, row, wall);
+        } else {
+          setWall(col, row, wall);
+        }
       }
-          
-    
     }
     // flag off 
     isMouseEvent = false;
   }
 }
-
 
 
 bool Maze::isOriginMaze() {
