@@ -2,6 +2,7 @@
 #include <cstdlib>
 #include <thread>
 #include <chrono>
+#include <iomanip>
 #include "maze.h"
 #include "utils.h"
 
@@ -616,11 +617,52 @@ void Maze::randSearch(Maze *origin) {
 }
 
 // 
-void Maze::printMaze() {
+void Maze::printMaze(char delim) {
+  std::cout << std::hex;
+  for (int i = 0; i < mazeH; ++i) {
+    for (int j = 0; j < mazeW; ++j) {
+      int value {0};
+      if (isWallExists(j, i, NORTH)) {
+        value += NORTH;
+      } 
+      if (isWallExists(j, i, EAST)) {
+        value += EAST;
+      }
+      if (isWallExists(j, i, SOUTH)) {
+        value += SOUTH;
+      }
+      if (isWallExists(j, i, WEST)) {
+        value += WEST;
+      }
+      std::cout  << std::setw(2) << "0x" <<
+       static_cast<int>(value) << delim;
+    }
+    std::cout << std::endl;
+  }
+  std::cout << std::dec << "\n\n";
+  
+}
+
+// 
+void Maze::printWalls(char delim) {
   std::cout << std::hex;
   for (int i = mazeH - 1; i >= 0; --i) {
     for (int j = 0; j < mazeW; ++j) {
-      std::cout << static_cast<int>(mapMaze[cellN(j, i)]) << ' ';
+      int value {0};
+      if (isWallExists(j, i, NORTH)) {
+        value += NORTH;
+      } 
+      if (isWallExists(j, i, EAST)) {
+        value += EAST;
+      }
+      if (isWallExists(j, i, SOUTH)) {
+        value += SOUTH;
+      }
+      if (isWallExists(j, i, WEST)) {
+        value += WEST;
+      }
+      std::cout  << std::setw(2) << "0x" <<
+       static_cast<int>(value) << delim;
     }
     std::cout << std::endl;
   }

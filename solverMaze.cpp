@@ -57,7 +57,7 @@ void SolverMaze::floodFill() {
   // set handler - pointer to 
   onSolverUpdate = &SolverMaze::algFloodFill;
   setDistances();
-  originM->printMaze();
+  originM->printMaze(' ');
   printMapDistances();
 }
 

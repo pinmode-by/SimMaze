@@ -57,6 +57,7 @@ void SimMaze::run() {
   const char kbCmdWallFollower = 'w';
   const char kbCmdAdvFlood = 'a';
   const char kbCmdTest = 't';
+  const char kbCmdDisplay = 'd';
 
   for (;;) {
     // event loop
@@ -86,6 +87,12 @@ void SimMaze::run() {
                       std::endl;
           loadMazeFromFile();
           break;
+        case kbCmdDisplay:
+          std::cout << "Display walls of current Maze on screen" <<
+                      std::endl;
+          oMaze->printMaze(',');            
+          oMaze->printWalls(' ');
+        break;
         case kbCmdEdit:
           std::cout << "Edit current Maze" << std::endl;
           editMaze();
@@ -176,7 +183,7 @@ bool SimMaze::loadMazeFromFile() {
     */
   }
   std::cout << "\n\n" << std::endl;
-  oMaze->printMaze();
+  oMaze->printMaze(' ');
   return true;
 }
 

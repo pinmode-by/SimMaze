@@ -99,7 +99,8 @@ public:
   void update();
   bool isWall(cv::Point p);
   void randSearch(Maze *origin);
-  void printMaze();
+  void printMaze(char delim);
+  void printWalls(char delim);
   CellType getStartPosition() {return {0, 0}; }
   std::vector<CellType> getGoalPosition() {
     return goalPositions;
