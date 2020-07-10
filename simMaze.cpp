@@ -88,9 +88,11 @@ void SimMaze::run() {
           loadMazeFromFile();
           break;
         case kbCmdDisplay:
-          std::cout << "Display walls of current Maze on screen" <<
+          std::cout << "Display walls of current Maze on screen.\n" <<
                       std::endl;
-          oMaze->printMaze(',');            
+          std::cout << "In memory: \n";
+          oMaze->printMaze(',');      
+          std::cout << "Visually:\n";      
           oMaze->printWalls(' ');
         break;
         case kbCmdEdit:

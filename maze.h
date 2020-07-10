@@ -71,13 +71,14 @@ public:
        int pW, int wW);
   cv::Size getSize() const { return cv::Size(mazeW, mazeH);}
   
-  int cellN(int x, int y) const {
-    return MAZE_WIDTH * x + y;
+  int cellN(int col, int row) const {
+    return mazeH * col + row;
   }
   void setWall(int col, int row, int wall);
   void clearWall(int col, int row, int wall);
   void setWalls(int col, int row, int valueCell);
   bool isWallExists(int col, int row, uchar wall);
+  bool isWallExists(int cell, char wall);
   void setVisited(int col, int row) {
     mapMaze[cellN(col, row)] |= VISITED;
   }

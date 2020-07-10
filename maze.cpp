@@ -61,8 +61,8 @@ void Maze::setStartGoalCells() {
   mapMaze[cellN(0, 0)] |= START_CELL;
   if (goalMaze == GoalDiagonal) {
     // target - diagonal cell: assign WEST wall
-    setWall(mazeW - 1, mazeW - 1, WEST);
-    goalPositions.push_back({mazeW - 1, mazeW - 1});
+    setWall(mazeW - 1, mazeH - 1, WEST);
+    goalPositions.push_back({mazeW - 1, mazeH - 1});
   } else {
     // target - center of Maze: 4 cells
     const int ROW = (mazeH - 1) / 2;
@@ -175,6 +175,9 @@ bool Maze::isWallExists(int col, int row, uchar wall) {
   return mapMaze[cellN(col, row)] & wall;
 }
 
+bool Maze::isWallExists(int cell, char wall) {
+  return mapMaze[cell] & wall;
+}
 
 void Maze::drawCell(int col, int row) {
   static const int cellWidth = pathWidth + wallWidth;
@@ -619,25 +622,25 @@ void Maze::randSearch(Maze *origin) {
 // 
 void Maze::printMaze(char delim) {
   std::cout << std::hex;
-  for (int i = 0; i < mazeH; ++i) {
-    for (int j = 0; j < mazeW; ++j) {
+  for (int i = 0; i < mazeH * mazeW; ++i) {
       int value {0};
-      if (isWallExists(j, i, NORTH)) {
+      if (isWallExists(i, NORTH)) {
         value += NORTH;
       } 
-      if (isWallExists(j, i, EAST)) {
+      if (isWallExists(i, EAST)) {
         value += EAST;
       }
-      if (isWallExists(j, i, SOUTH)) {
+      if (isWallExists(i, SOUTH)) {
         value += SOUTH;
       }
-      if (isWallExists(j, i, WEST)) {
+      if (isWallExists(i, WEST)) {
         value += WEST;
       }
-      std::cout  << std::setw(2) << "0x" <<
+    std::cout  << std::setw(2) << "0x" <<
        static_cast<int>(value) << delim;
+    if ((i + 1) % mazeH == 0) {
+      std::cout << std::endl;
     }
-    std::cout << std::endl;
   }
   std::cout << std::dec << "\n\n";
   
