@@ -82,6 +82,12 @@ public:
   void setVisited(int col, int row) {
     mapMaze[cellN(col, row)] |= VISITED;
   }
+  void setOnRoute(int col, int row) {
+    mapMaze[cellN(col, row)] |= ONROUTE;
+  }
+  void clearOnRoute(int col, int row) {
+    mapMaze[cellN(col, row)] &= ~ONROUTE;
+  }
   void setCell(int cell, uchar value) {
     mapMaze[cell] = value;
   };

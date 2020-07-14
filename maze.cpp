@@ -51,7 +51,6 @@ void Maze::onCreate() {
     setWall(mazeW - 1, i, EAST); 
   }
   drawStandMaze();
-  //printMaze();
 }
 
 void Maze::setStartGoalCells() {
@@ -239,18 +238,29 @@ void Maze::drawCell(int col, int row) {
         cv::LINE_8 );
   }
 
+  cv::Scalar colorCell;
   if (mapMaze[cellN(col, row)] & START_CELL) {
+    colorCell = {0, 255, 255};
     rectangle(matMaze,
         cv::Point(cX + wallWidth, cY - wallWidth),
         cv::Point(cX + cellWidth - 1, cY - cellWidth + 1),
-        {0, 255, 255},
+        colorCell,
         cv::FILLED,
         cv::LINE_8 );
   } else if (mapMaze[cellN(col, row)] & TARGET_CELL) {
+    colorCell =  {200, 213, 48};
     rectangle(matMaze,
         cv::Point(cX + wallWidth, cY - wallWidth),
         cv::Point(cX + cellWidth - 1, cY - cellWidth + 1),
-        {200, 213, 48}, //{31, 47, 0},
+        colorCell, //{31, 47, 0},
+        cv::FILLED,
+        cv::LINE_8 );
+  } else if (mapMaze[cellN(col, row)] & ONROUTE) {
+    colorCell = {255, 50, 50};
+    rectangle(matMaze,
+        cv::Point(cX + wallWidth, cY - wallWidth),
+        cv::Point(cX + cellWidth - 1, cY - cellWidth + 1),
+        colorCell,
         cv::FILLED,
         cv::LINE_8 );
   } else if (mapMaze[cellN(col, row)] & VISITED) {
@@ -367,10 +377,8 @@ void Maze::algGeneration() {
     
   } else {
     onMazeUpdate = nullptr;
-
     std::cout << "Size of stack : " << stackMaze.size() << std::endl;
     stackMaze = std::stack<CellType>();
-
   }
 }
 
@@ -424,26 +432,22 @@ void Maze::generate() {
   }
   setColorCurrent({0, 255, 255});
   stackMaze.push(getStartPosition()); // {0, 0}
-  
   // pointer to member function
   onMazeUpdate = &Maze::algGeneration;
 }
 
-
 void Maze::onEdit() {
   static const int cellWidth = pathWidth + wallWidth;
-  
   if (sm::isMouseEvent) {
     if (isOriginMaze()) {
       int x = mEvent.x - offset.x;
-      int y = mEvent.y - offset.y;
-    
+      int y = mEvent.y - offset.y;    
       int row = (sizeMatMaze.height - y) / cellWidth;
       int col = x / cellWidth;
+
+      //std::cout << "col: " << col << " row: " << row << std::endl;
       
-      std::cout << "col: " << col << " row: " << row << std::endl;
-      
-      // check SOUTH & WEST walls
+      // lambda : check SOUTH & WEST walls
       auto isWall = [=]() {
         if (x >= col * cellWidth + wallWidth &&
             x <= col * cellWidth + cellWidth - 1 && 

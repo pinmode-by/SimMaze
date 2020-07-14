@@ -57,7 +57,7 @@ void SolverMaze::floodFill() {
   // set handler - pointer to 
   onSolverUpdate = &SolverMaze::algFloodFill;
   setDistances();
-  originM->printMaze(' ');
+  originM->printWalls(' ');
   printMapDistances();
 }
 
@@ -165,27 +165,26 @@ void SolverMaze::algWallFollower() {
     if (!neighbour.empty()) {
       
       int nextDir = neighbour[0];
-      //std::cout <<  "nextDir : " << nextDir << std::endl;
       
       switch (nextDir) {
         case NORTH: 
           solveM->stackMaze.push({col, row + 1});
-          //solveM->setVisited(col, row + 1);
+          solveM->setOnRoute(col, row + 1);
           currentDir = NORTHC;
           break;
         case WEST: 
           solveM->stackMaze.push({col - 1, row});
-          //solveM->setVisited(col -1, row);
+          solveM->setOnRoute(col - 1, row);
           currentDir = WESTC;
           break; 
         case EAST: 
           solveM->stackMaze.push({col + 1, row});
-          //solveM->setVisited(col + 1, row);
+          solveM->setOnRoute(col + 1, row);
           currentDir = EASTC;
           break; 
         case SOUTH: 
           solveM->stackMaze.push({col, row - 1});
-          //solveM->setVisited(col, row - 1);
+          solveM->setOnRoute(col, row - 1);
           currentDir = SOUTHC;
           break;  
       }
@@ -193,7 +192,8 @@ void SolverMaze::algWallFollower() {
         
     } else {
       // No available directions so backtrack!
-      currentDir = static_cast<compassDir>(-stackDir.top()); 
+      currentDir = static_cast<compassDir>(-stackDir.top());  
+      solveM->clearOnRoute(col, row);
       stackDir.pop();
       solveM->stackMaze.pop();   
     }
