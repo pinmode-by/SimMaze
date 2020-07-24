@@ -49,6 +49,7 @@ enum CELL {
 };
 
 enum { NORTHN, EASTN, SOUTHN, WESTN };
+enum { LEFTDOWN, RIGHTDOWN };
   
 extern bool isMouseEvent;
 
@@ -77,10 +78,13 @@ public:
   void setWall(int col, int row, int wall);
   void clearWall(int col, int row, int wall);
   void setWalls(int col, int row, int valueCell);
-  bool isWallExists(int col, int row, uchar wall);
-  bool isWallExists(int cell, char wall);
+  bool isWallExists(int col, int row, uchar wall) const;
+  bool isWallExists(int cell, char wall) const ;
   void setVisited(int col, int row) {
     mapMaze[cellN(col, row)] |= VISITED;
+  }
+  void clearVisited(int cell) {
+    mapMaze[cell] &= ~VISITED;
   }
   void setOnRoute(int col, int row) {
     mapMaze[cellN(col, row)] |= ONROUTE;
@@ -112,6 +116,9 @@ public:
   std::vector<CellType> getGoalPosition() {
     return goalPositions;
   }
+  void addGoalPosition(int col, int row) {
+    goalPositions.push_back({col, row}); 
+  }
   void setColorVisited(cv::Scalar newColor) {
      colorVISITED = cv::Scalar(newColor); }
   void setColorCurrent(cv::Scalar newColor) {
@@ -136,6 +143,11 @@ private:
   
   std::vector<CellType> goalPositions {};
  
+  void removeGoalPosition(int col, int row) {
+    //int cell = cellN(col, row);
+    //goalPositions.erase( )
+  }
+  
   cv::Point offset; // offset from SimMaze 
   
   std::vector<uchar> mapMaze;
@@ -149,6 +161,7 @@ private:
   cv::Mat matMaze;
   cv::Size sizeMatMaze;
   cv::Scalar colorVISITED {50, 50, 50};
+  cv::Scalar colorNORMAL {50, 50, 50};
   cv::Scalar colorCURRENT {0, 255, 255};
   int prevDir;
   // Algorithm generations mazes variables

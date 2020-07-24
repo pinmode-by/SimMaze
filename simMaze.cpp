@@ -5,23 +5,27 @@
 #include <cstring>
 
 static void onMouse(int event, int x, int y, int flags, void* param) {
-  switch(event) {
-    case cv::EVENT_LBUTTONDOWN: {
-      if (sm::SimMaze::getStatus() == sm::Status::Edit) {
-        sm::isMouseEvent = true;
-        sm::mEvent.x = x;
-        sm::mEvent.y = y;
-      } else if (sm::SimMaze::getStatus() == sm::Status::Idle) {
-        //std::cout << "Idle :" << "at (" << x << "," << y << ") value is "
-        // << (pm->at<cv::Vec3b>(cv::Point(x,y))) << std::endl;       
-      }
-    break;
-    }
+  if (sm::SimMaze::getStatus() != sm::Status::Edit) {
+    return;
   }
+  sm::mEvent.x = x;
+  sm::mEvent.y = y;
+  switch(event) {
+    case cv::EVENT_LBUTTONDOWN: 
+      sm::isMouseEvent = true;   
+      sm::mEvent.typeEvent = sm::LEFTDOWN; 
+      break;
+    case cv::EVENT_RBUTTONDOWN:
+      sm::isMouseEvent = true;
+      sm::mEvent.typeEvent = sm::RIGHTDOWN;
+      break;
+  } //switch
 }
 
 
 namespace sm {
+
+std::string fileMaze = "maze.sim";
 
 SimMaze::SimMaze (cv::Size sz, int goal) {
   const int sMax = std::max(sz.width, sz.height);
@@ -78,13 +82,11 @@ void SimMaze::run() {
           genMaze();
           break;
         case kbCmdWrite:
-          std::cout << "Write current Maze to output file <simMaze.txt>" <<
-                      std::endl;
+          std::cout << "Write current Maze to output file" << std::endl;
           saveMazeToFile();
           break;
         case kbCmdLoad:
-          std::cout << "Load Maze from input file <maze.txt>" <<
-                      std::endl;
+          std::cout << "Load Maze from input file" << std::endl;
           loadMazeFromFile();
           break;
         case kbCmdDisplay:
@@ -111,7 +113,7 @@ void SimMaze::run() {
           break;
         case kbCmdWallFollower:
           std::cout << "Solve the current maze by wall follower" \
-                      "(right rule ) algorithm" << std::endl;
+                      "(right/left rule ) algorithm" << std::endl;
           wallFollowerSim();
           break;  
         case kbCmdAdvFlood:
@@ -152,14 +154,26 @@ void SimMaze::editMaze() {
 }
 
 bool SimMaze::saveMazeToFile() {
-
+  std::ofstream ofs(fileMaze, std::ifstream::binary);
+  if (!ofs) {
+    std::cerr << "Error in <" << __PRETTY_FUNCTION__ << "> : " 
+              << std::strerror(errno) << std::endl;
+    return false;
+  }
+  std::cout << "Writing maze to file... <" <<
+    fileMaze << "> : " << std::endl;
+  cv::Size sz = oMaze->getSize();
+  for (int i = 0; i < sz.height * sz.width; ++i) {
+    char ch = static_cast<char>(oMaze->getCell(i));
+    ofs.write(&ch, 1);
+  }
   return true;
 }
 
 bool SimMaze::loadMazeFromFile() {
   oMaze->clean();
   sMaze->clean();
-  std::string fileMaze ("simMaze.maz"); 
+  //std::string fileMaze ("simMaze.maz"); 
   std::ifstream ifs(fileMaze, std::ifstream::binary);
   if (!ifs) {
     std::cerr << "Error in <" << __PRETTY_FUNCTION__ << "> : " 
@@ -168,7 +182,8 @@ bool SimMaze::loadMazeFromFile() {
   }
   
   int read_bytes = 0;
-  std::cout << "Reading maze file... <" << fileMaze << "> : " << std::endl;
+  std::cout << "Reading maze file... <" <<
+    fileMaze << "> : " << std::endl;
   while (true) {
     char ch;
     ifs.read(&ch, 1);
@@ -177,12 +192,6 @@ bool SimMaze::loadMazeFromFile() {
     }
     oMaze->setCell(read_bytes, static_cast<uchar>(ch));
     ++read_bytes;
-    /*
-    std::cout << std::hex << static_cast<int>(ch) << ' ' ;
-    if (read_bytes % 16 == 0) {
-      std::cout << std::endl;
-    } 
-    */
   }
   std::cout << "\n\n" << std::endl;
   oMaze->printMaze(' ');

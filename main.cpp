@@ -40,7 +40,7 @@ int main(int argc, const char** argv) {
   // check Size range 
   const int wMaze = static_cast<int>(args["--width"].asLong());
   const int hMase = static_cast<int>(args["--height"].asLong());
-  if (wMaze < 4 || wMaze > 16 || hMase < 4 || hMase > 16) {
+  if (wMaze < 2 || wMaze > 16 || hMase < 2 || hMase > 16) {
     std::cerr << "Command line options are out of the range.\n";
     for(auto const& arg : args) {
       std::cout << arg.first << ": " << arg.second << std::endl;

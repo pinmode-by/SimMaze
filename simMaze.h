@@ -42,6 +42,8 @@ enum class Status {
 
 using namespace cv;
 
+extern std::string fileMaze;
+
 class SimMaze {
   
 public:
