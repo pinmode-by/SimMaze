@@ -27,7 +27,7 @@
 #include <opencv2/imgproc.hpp>
 #include <iostream>
 #include <stack>
-
+#include <algorithm>  
 
 namespace sm {
   
@@ -35,6 +35,7 @@ using RowType = int;
 using ColType = int;
 using CellType = std::pair<ColType, RowType>; 
 using uchar = unsigned char;
+
 
 enum CELL {
   NOTHING = 0x0,
@@ -62,6 +63,7 @@ struct MouseEvent {
 extern MouseEvent mEvent;
 
 const int MAZE_WIDTH = 16;
+const int MAX_TARGET = 4;
 
 class SolverMaze;
 
@@ -116,8 +118,20 @@ public:
   std::vector<CellType> getGoalPosition() {
     return goalPositions;
   }
-  void addGoalPosition(int col, int row) {
-    goalPositions.push_back({col, row}); 
+  bool addGoalPosition(int col, int row) {
+    if (goalPositions.size() < MAX_TARGET) {
+      goalPositions.push_back({col, row});
+      return true; 
+    }
+    return false;
+  }
+  bool removeGoalPosition(int col, int row) {
+    if  (auto it = std::find(goalPositions.begin(), goalPositions.end(),
+      CellType(col, row)); it != goalPositions.end()) {
+      goalPositions.erase(it);
+      return true;
+    };
+    return false;
   }
   void setColorVisited(cv::Scalar newColor) {
      colorVISITED = cv::Scalar(newColor); }
@@ -142,14 +156,7 @@ private:
   bool isOriginMaze();
   
   std::vector<CellType> goalPositions {};
- 
-  void removeGoalPosition(int col, int row) {
-    //int cell = cellN(col, row);
-    //goalPositions.erase( )
-  }
-  
   cv::Point offset; // offset from SimMaze 
-  
   std::vector<uchar> mapMaze;
   
   Maze *originMaze = nullptr;

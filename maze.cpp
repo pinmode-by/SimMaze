@@ -406,6 +406,7 @@ void Maze::generate() {
   mapMaze[cellN(0, 0)] |= VISITED;
   mapMaze[cellN(0, 0)] |= START_CELL;
   // for finish cells
+  nVisitedCells = 1;
   if (goalPositions.empty()) {
     if (goalMaze == GoalDiagonal) {
       clearWall(mazeW - 1, mazeH - 1, SOUTH);
@@ -484,10 +485,15 @@ void Maze::onEdit() {
           }
         } 
       } else if (mEvent.typeEvent == sm::RIGHTDOWN) {
+        
         if ((mapMaze[cellN(col, row)] & TARGET_CELL) == 0) {
-          mapMaze[cellN(col, row)] |= TARGET_CELL;
+          if (addGoalPosition(col, row)) {
+            mapMaze[cellN(col, row)] |= TARGET_CELL;
+          }
         } else {
-          mapMaze[cellN(col, row)] &= ~TARGET_CELL;
+          if (removeGoalPosition(col, row)) {
+            mapMaze[cellN(col, row)] &= ~TARGET_CELL;
+          }
         }
       }
     }
